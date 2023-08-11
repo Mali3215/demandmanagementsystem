@@ -44,12 +44,11 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
             if (workOrderData?.workOrderCase == util.assignedToPerson) {
                 viewModel.getAuthorityType {currentUserId ->
                     if (workOrderData.selectedWorkOrderUserId == currentUserId){
-                        // binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = true
                         binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = true
                         binding.toolbarWorkOrder.menu.findItem(R.id.jobReturn).isVisible = true
                         binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
-                        //  binding.toolbarWorkOrder.menu.findItem(R.id.save).isVisible = true
                         binding.toolbarWorkOrder.menu.findItem(R.id.startedActivity).isVisible = true
+                        binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = false
                     } else {
                         binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = false
@@ -91,27 +90,32 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
             }else if (workOrderData?.workOrderCase == util.completed) {
 
-                binding.toolbarWorkOrder.menu.findItem(R.id.confirmJob).isVisible = false
-
                 binding.spinnerWorkOrderUserSubject.visibility = View.GONE
                 binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
                 binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = false
                 binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = false
+                binding.toolbarWorkOrder.menu.findItem(R.id.jobReturn).isVisible = false
+                binding.toolbarWorkOrder.menu.findItem(R.id.save).isVisible = false
+                binding.toolbarWorkOrder.menu.findItem(R.id.startedActivity).isVisible = false
+                binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
+                binding.toolbarWorkOrder.menu.findItem(R.id.confirmJob).isVisible = false
 
             }else if (workOrderData?.workOrderCase == util.activityProcessed) {
 
                 viewModel.getAuthorityType {currentUserId ->
                     if (workOrderData.selectedWorkOrderUserId == currentUserId){
+                        binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = true
 
                         binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
-                        binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = true
                         binding.toolbarWorkOrder.menu.findItem(R.id.save).isVisible = true
+
                         binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
 
 
                         viewModel.getDataSpinnerRequest { list ->
                             getSpinnerRequestData(list)
                         }
+
                     } else {
                         binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = false
@@ -124,16 +128,24 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
                 }
 
-
-
             }else if (workOrderData?.workOrderCase == util.deniedWork) {
-
+                binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
                 binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
                 binding.spinnerWorkOrderUserSubject.visibility = View.GONE
+
+
             }else if (workOrderData?.workOrderCase == util.jobReturn) {
+                binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
+                viewModel.getAuthorityType {currentUserId ->
+                    if (workOrderData.createWorkOrderId == currentUserId){
+                        binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = true
+                        binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = true
+                        binding.relativeLayoutWorkOrderDetail.visibility = View.GONE
+                        binding.spinnerWorkOrderUserSubject.visibility = View.GONE
+                    }
 
-                binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
-                binding.spinnerWorkOrderUserSubject.visibility = View.GONE
+                }
+
             }
         }
 
@@ -198,7 +210,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
             R.id.completed -> {
                 if (binding.textWorkOrderRequestSubject.visibility == View.GONE){
                     viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
-                        , util.tempKindRequest,binding)
+                        , util.tempKindWorkOrder,binding)
                 }else {
                     viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
                         , util.tempKindWorkOrder,binding)
@@ -260,6 +272,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
             R.id.confirmJob -> {
                 viewModel.workOrderData.observe(this) { workOrderData ->
                     if (workOrderData != null) {
+
                         viewModel.workCompleted(myWorkOrderID!!,this@MyWorkOrderDetailActivity,
                             workOrderData.workOrderRequestId!!)
                     }

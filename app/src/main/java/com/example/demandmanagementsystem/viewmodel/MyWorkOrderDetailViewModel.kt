@@ -422,20 +422,22 @@ class MyWorkOrderDetailViewModel: ViewModel() {
             "requestCase" to util.completed
         )
 
+        if (requestID != ""){
+            reference.requestsCollection()
+                .document(requestID)
+                .update(updateData)
+                .addOnSuccessListener { documentSnapshot ->
 
-        reference.requestsCollection()
-            .document(requestID)
-            .update(updateData)
-            .addOnSuccessListener { documentSnapshot ->
+                    Toast.makeText(
+                        context,
+                        "İş Tamamlandı", Toast.LENGTH_SHORT
+                    ).show()
 
-                Toast.makeText(
-                    context,
-                    "İş Tamamlandı", Toast.LENGTH_SHORT
-                ).show()
+                }.addOnFailureListener { e ->
+                    Log.e("RequestDetailViewModel", "Hata ")
+                }
+        }
 
-            }.addOnFailureListener { e ->
-                Log.e("RequestDetailViewModel", "Hata ")
-            }
 
 
     }
