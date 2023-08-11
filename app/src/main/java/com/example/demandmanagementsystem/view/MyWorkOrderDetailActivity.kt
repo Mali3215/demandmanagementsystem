@@ -258,11 +258,16 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
                 true
             }
             R.id.confirmJob -> {
+                viewModel.workOrderData.observe(this) { workOrderData ->
+                    if (workOrderData != null) {
+                        viewModel.workCompleted(myWorkOrderID!!,this@MyWorkOrderDetailActivity,
+                            workOrderData.workOrderRequestId!!)
+                    }
+                    val intent = Intent(this@MyWorkOrderDetailActivity, CreatedWorkOrderActivity::class.java)
+                    finish()
+                    startActivity(intent)
+                }
 
-                viewModel.workCompleted(myWorkOrderID!!,this)
-                val intent = Intent(this@MyWorkOrderDetailActivity, CreatedWorkOrderActivity::class.java)
-                finish()
-                startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)

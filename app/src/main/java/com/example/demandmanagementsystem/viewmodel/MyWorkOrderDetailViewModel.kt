@@ -398,7 +398,7 @@ class MyWorkOrderDetailViewModel: ViewModel() {
 
     }
 
-    fun workCompleted(myWorkOrderID: String, context: Context){
+    fun workCompleted(myWorkOrderID: String, context: Context,requestID: String){
 
         val updateWorkOrderData = hashMapOf<String, Any>(
             "workOrderCase" to util.completed
@@ -407,6 +407,25 @@ class MyWorkOrderDetailViewModel: ViewModel() {
         reference.workordersCollection()
             .document(myWorkOrderID)
             .update(updateWorkOrderData)
+            .addOnSuccessListener { documentSnapshot ->
+
+                Toast.makeText(
+                    context,
+                    "İş Tamamlandı", Toast.LENGTH_SHORT
+                ).show()
+
+            }.addOnFailureListener { e ->
+                Log.e("RequestDetailViewModel", "Hata ")
+            }
+
+        val updateData = hashMapOf<String, Any>(
+            "requestCase" to util.completed
+        )
+
+
+        reference.requestsCollection()
+            .document(requestID)
+            .update(updateData)
             .addOnSuccessListener { documentSnapshot ->
 
                 Toast.makeText(
