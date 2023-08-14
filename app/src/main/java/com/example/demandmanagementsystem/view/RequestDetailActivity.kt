@@ -24,8 +24,8 @@ class RequestDetailActivity : AppCompatActivity() {
     private lateinit var viewModel: RequestDetailViewModel
     private var util = RequestUtil()
     private var requestID: String? = null
-    var userDepartmentType = ""
-    var requestDepartmentType = ""
+    private var userDepartmentType = ""
+    private var requestDepartmentType = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,6 +145,7 @@ class RequestDetailActivity : AppCompatActivity() {
                         }
 
                     }else if (requestCase == util.deniedRequest) {
+                        binding.openMenuButton.visibility = View.GONE
                         binding.layoutRequestDenied.visibility = View.VISIBLE
                         binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
                         binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
@@ -161,6 +162,25 @@ class RequestDetailActivity : AppCompatActivity() {
                 }
             }
         }
+
+        binding.openMenuButton.setOnClickListener {
+            if (binding.menuCardView.visibility == View.VISIBLE) {
+                binding.menuCardView.visibility = View.GONE
+
+            } else {
+                binding.menuCardView.visibility = View.VISIBLE
+            }
+        }
+
+        binding.openMenuButtonRequest.setOnClickListener {
+            if (binding.menuCardViewRequest.visibility == View.VISIBLE) {
+                binding.menuCardViewRequest.visibility = View.GONE
+
+            } else {
+                binding.menuCardViewRequest.visibility = View.VISIBLE
+            }
+        }
+
 
     }
 

@@ -46,7 +46,7 @@ class RequestUtil {
                         deniedWork -> Color.RED
                         else -> Color.BLACK
                 }
-                Log.d("RequestUtil", "Request Case: $requestCase, Color: $color")
+
                 return color
         }
 

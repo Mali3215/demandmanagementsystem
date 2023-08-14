@@ -40,9 +40,7 @@ class RequestAdapter(private val context:Context,
 
 
     override fun onBindViewHolder(holder: RequestViewHolder, position: Int) {
-
         holder.view.request = requestList[position]
-
         holder.view.objectCardView.setOnClickListener {
             val intent = Intent(context, RequestDetailActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK // Yeni görev olarak başlatma bayrağı

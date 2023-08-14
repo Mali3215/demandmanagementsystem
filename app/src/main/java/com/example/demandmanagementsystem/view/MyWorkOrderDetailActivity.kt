@@ -69,11 +69,10 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
                     if (workOrderData.createWorkOrderId == currentUserId){
 
                         binding.toolbarWorkOrder.menu.findItem(R.id.confirmJob).isVisible = true
-
                         binding.spinnerWorkOrderUserSubject.visibility = View.GONE
                         binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
                         binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = false
-                        binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = false
+                        binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = true
                         binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
                     } else {
                         binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = false
@@ -88,8 +87,6 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
                     }
 
                 }
-
-
             }else if (workOrderData?.workOrderCase == util.completed) {
 
                 binding.spinnerWorkOrderUserSubject.visibility = View.GONE
@@ -145,12 +142,9 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
                         binding.relativeLayoutWorkOrderDetail.visibility = View.GONE
                         binding.spinnerWorkOrderUserSubject.visibility = View.GONE
                     }
-
                 }
-
             }
         }
-
         binding.openMenuButtonWorkOrderResult.setOnClickListener {
             if (binding.menuCardViewWorkOrderResult.visibility == View.VISIBLE) {
                 binding.menuCardViewWorkOrderResult.visibility = View.GONE
@@ -180,7 +174,6 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
 
     }
-
     fun getSpinnerRequestData(spinnerList: List<String>){
 
         spinnerDataAdapter = ArrayAdapter(this@MyWorkOrderDetailActivity, android.R.layout.simple_list_item_1,
@@ -205,8 +198,6 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
         }
 
     }
-
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.completed -> {
@@ -262,12 +253,20 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
             R.id.createWorkOrderDetailMenu -> {
                 viewModel.workOrderData.observe(this) { workOrderData ->
+                    if (workOrderData!!.workOrderRequestId == ""){
+                        val intent = Intent(this@MyWorkOrderDetailActivity,CreateWorkOrderActivity::class.java)
+                        intent.putExtra(util.intentWorkOrderId,workOrderData?.workOrderID)
+                        intent.putExtra(utilRequest.intentRequestId,workOrderData?.workOrderRequestId)
+                        intent.putExtra(utilRequest.intentRequestDetail,2)
+                        startActivity(intent)
+                    }else{
+                        val intent = Intent(this@MyWorkOrderDetailActivity,CreateWorkOrderActivity::class.java)
+                        intent.putExtra(util.intentWorkOrderId,workOrderData?.workOrderID)
+                        intent.putExtra(utilRequest.intentRequestId,workOrderData?.workOrderRequestId)
+                        intent.putExtra(utilRequest.intentRequestDetail,1)
+                        startActivity(intent)
+                    }
 
-                    val intent = Intent(this@MyWorkOrderDetailActivity,CreateWorkOrderActivity::class.java)
-                    intent.putExtra(util.intentWorkOrderId,workOrderData?.workOrderID)
-                    intent.putExtra(utilRequest.intentRequestId,workOrderData?.workOrderRequestId)
-                    intent.putExtra(utilRequest.intentRequestDetail,1)
-                    startActivity(intent)
 
                 }
                 true

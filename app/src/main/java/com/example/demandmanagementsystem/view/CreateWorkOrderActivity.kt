@@ -355,43 +355,45 @@ class CreateWorkOrderActivity : AppCompatActivity() {
         val textWorkOrderRequestDescription = findViewById<TextView>(R.id.textWorkOrderRequestDescription)
         val textWorkOrderRequestType = findViewById<TextView>(R.id.textWorkOrderRequestType)
 
+        if((requestID != null) && (requestID != "")){
+            textWorkOrderRequestId.text = requestID  // talep ID
 
-        textWorkOrderRequestId.text = requestID  // talep ID
+            requestCollectionRef.document(requestID)
+                .get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val documentSnapshot = task.result
+                        val workOrderRequestSendDepartmen = documentSnapshot.getString("requestSendDepartment")
+                        val workOrderRequestType = documentSnapshot.getString("requestType")
+                        val workOrderRequestSubject = documentSnapshot.getString("requestSubject")
+                        val workOrderRequestDescription = documentSnapshot.getString("requestDescription")
 
-        requestCollectionRef.document(requestID)
-            .get()
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val documentSnapshot = task.result
-                    val workOrderRequestSendDepartmen = documentSnapshot.getString("requestSendDepartment")
-                    val workOrderRequestType = documentSnapshot.getString("requestType")
-                    val workOrderRequestSubject = documentSnapshot.getString("requestSubject")
-                    val workOrderRequestDescription = documentSnapshot.getString("requestDescription")
+                        if ((workOrderRequestType != null) && (workOrderRequestSendDepartmen != null)) {
+                            arrayRequestInfo.add(workOrderRequestType)
+                            arrayRequestInfo.add(workOrderRequestSendDepartmen)
 
-                    if ((workOrderRequestType != null) && (workOrderRequestSendDepartmen != null)) {
-                        arrayRequestInfo.add(workOrderRequestType)
-                        arrayRequestInfo.add(workOrderRequestSendDepartmen)
+                            getDataSpinnerRequest { list ->
 
-                        getDataSpinnerRequest { list ->
+                                getSpinnerRequestData(list)
+                            }
 
-                            getSpinnerRequestData(list)
                         }
 
+                        textWorkOrderRequestSubject.text = workOrderRequestSubject
+                        textWorkOrderRequestDescription.text = workOrderRequestDescription
+                        textWorkOrderRequestType.text = workOrderRequestType
+
+                    } else {
+
+                        Log.d("Firestore", "Talep bulunamadı")
                     }
-
-                    textWorkOrderRequestSubject.text = workOrderRequestSubject
-                    textWorkOrderRequestDescription.text = workOrderRequestDescription
-                    textWorkOrderRequestType.text = workOrderRequestType
-
-                } else {
-
-                    Log.d("Firestore", "Talep bulunamadı")
                 }
-            }
-            .addOnFailureListener { exception ->
+                .addOnFailureListener { exception ->
 
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
-            }
+                    Log.e("Firestore", "Veri çekme hatası: ", exception)
+                }
+        }
+
         val user = auth.currentUser
         val userId = user!!.uid
 

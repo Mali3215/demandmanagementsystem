@@ -25,8 +25,6 @@ class WorkOrderUtil {
 
     val save = "Kaydet"
 
-    val activityStarted = "Aktiviteye Başlandı"
-
     val jobReturn = "İş İade Edildi"
 
     val tempKindWorkOrder = 2
