@@ -114,7 +114,10 @@
                         android:id="@+id/textWorkOrderCreateUserName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="İşi Yapacak Kişi" />
+                        android:hint="İşi Yapacak Kişi"
+                        android:textColor="@color/black"
+                        android:inputType="none"
+                        android:enabled="false"/>
 
                     <Spinner
                         android:id="@+id/spinnerCreateWorkOrder"
@@ -231,7 +234,10 @@
                         android:id="@+id/textWorkOrderSubject"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="İş Emri Konusu" />
+                        android:hint="İş Emri Konusu"
+                        android:textColor="@color/black"
+                        android:inputType="none"
+                        android:enabled="false"/>
                     <Spinner
                         android:id="@+id/spinnerCreateWorkOrderRequestSubject"
                         android:layout_width="match_parent"
