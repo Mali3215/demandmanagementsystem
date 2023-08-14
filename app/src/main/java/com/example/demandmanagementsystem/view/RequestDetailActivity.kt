@@ -44,17 +44,20 @@ class RequestDetailActivity : AppCompatActivity() {
         requestID = intent.getStringExtra(util.intentRequestId)
         viewModel.getData(requestID!!)
 
-        viewModel.userDepartmentData.observe(this@RequestDetailActivity) { userDepartmant ->
-            if (userDepartmant != null) {
-                userDepartmentType = userDepartmant
-            }
-        }
+
+
         viewModel.requestDepartmentData.observe(this@RequestDetailActivity) { requestDepartmant ->
             if (requestDepartmant != null) {
                 requestDepartmentType = requestDepartmant
+
+                viewModel.userDepartmentData.observe(this@RequestDetailActivity) { userDepartmant ->
+                    if (userDepartmant != null) {
+                        userDepartmentType = userDepartmant
+                    }
+                }
+
             }
         }
-
 
 
         viewModel.getAuthorityType { authorityType ->
@@ -129,6 +132,7 @@ class RequestDetailActivity : AppCompatActivity() {
                         binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
                     }else if (requestCase == util.newRequest) {
+
                         Log.e("getAuthorityType", " - newRequest"  + " " +  userDepartmentType)
                         Log.e("getAuthorityType", " - newRequest" + " " +  requestDepartmentType)
                         Log.e("getAuthorityType", " - newRequest" + " " + requestCase)
