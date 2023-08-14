@@ -39,8 +39,6 @@ class CreatedWorkOrderActivity : AppCompatActivity()
             this@CreatedWorkOrderActivity,
             R.layout.activity_created_work_order
         )
-        // testi kaldı veri tabanı sıfırlanıp test edilecek
-
 
         binding.recyclerViewCreatedWorkOrder.setHasFixedSize(true)
         binding.recyclerViewCreatedWorkOrder.layoutManager =
@@ -55,7 +53,7 @@ class CreatedWorkOrderActivity : AppCompatActivity()
         binding.swipeRefreshLayoutCreatedWorkOrder.setOnRefreshListener {
             viewModel.fetchData()
             viewModel.getData()
-
+            binding.spinnerCreatedWorkOrderFilter.setSelection(0)
             binding.swipeRefreshLayoutCreatedWorkOrder.isRefreshing = false
         }
         viewModel.createdWorkOrderLoading.observe(this) { loading ->
@@ -127,6 +125,7 @@ class CreatedWorkOrderActivity : AppCompatActivity()
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
+                binding.spinnerCreatedWorkOrderFilter.setSelection(0)
 
                 viewModel.fetchData()
                 viewModel.getData()

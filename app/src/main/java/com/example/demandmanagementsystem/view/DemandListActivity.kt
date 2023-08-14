@@ -81,6 +81,7 @@ class DemandListActivity : AppCompatActivity()
             department.text = departmentType
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.spinnerFilter.setSelection(0)
             viewModel.fetchData()
             viewModel.getData()
 
@@ -169,7 +170,7 @@ class DemandListActivity : AppCompatActivity()
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
-
+                binding.spinnerFilter.setSelection(0)
                 viewModel.fetchData()
                 viewModel.getData()
                 true

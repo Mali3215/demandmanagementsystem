@@ -46,6 +46,8 @@ class MyWorkOrdersActivity : AppCompatActivity(), SearchView.OnQueryTextListener
 
 
         binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.spinnerWorkOrderFilter.setSelection(0)
+
             viewModel.fetchData()
             viewModel.getData()
 
@@ -120,6 +122,7 @@ class MyWorkOrdersActivity : AppCompatActivity(), SearchView.OnQueryTextListener
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
+                binding.spinnerWorkOrderFilter.setSelection(0)
                 viewModel.fetchData()
                 viewModel.getData()
                 true

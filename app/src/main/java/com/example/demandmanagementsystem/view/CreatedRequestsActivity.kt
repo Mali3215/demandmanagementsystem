@@ -45,6 +45,7 @@ class CreatedRequestsActivity : AppCompatActivity()
         viewModel = ViewModelProvider(this).get(CreatedRequestsViewModel::class.java)
 
         binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.spinnerCreatedRequestsFilter.setSelection(0)
             viewModel.fetchData()
             viewModel.getData()
 
@@ -123,7 +124,7 @@ class CreatedRequestsActivity : AppCompatActivity()
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
-
+                binding.spinnerCreatedRequestsFilter.setSelection(0)
                 viewModel.fetchData()
                 viewModel.getData()
                 true
