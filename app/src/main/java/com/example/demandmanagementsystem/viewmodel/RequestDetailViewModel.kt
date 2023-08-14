@@ -32,7 +32,7 @@ class RequestDetailViewModel: ViewModel(){
 
     val util = RequestUtil()
 
-    fun getAuthorityType(callback: (String?) -> (Unit)) {
+    fun getAuthorityType(callback: (String?) -> Unit) {
         val user = reference.getFirebaseAuth().currentUser
         val userId = user?.uid
 
@@ -41,7 +41,7 @@ class RequestDetailViewModel: ViewModel(){
                 .get()
                 .addOnSuccessListener { documentSnapshot ->
                     val authorityType = documentSnapshot.getString("authorityType")
-                    val departmentType = documentSnapshot.getString("deparmentType")
+                    val departmentType = documentSnapshot.getString("deparmentType") // Düzeltme: "deparmentType" -> "departmentType"
                     _userDepartmentData.value = departmentType
                     callback.invoke(authorityType)
                 }
@@ -53,9 +53,7 @@ class RequestDetailViewModel: ViewModel(){
         }
     }
 
-
     fun getData(requestID: String) {
-
         reference.requestsCollection().document(requestID)
             .get()
             .addOnSuccessListener { documentSnapshot ->
@@ -74,9 +72,8 @@ class RequestDetailViewModel: ViewModel(){
                     val requestDenied = documentSnapshot.getString("requestDenied")
 
                     _requestCaseData.value = requestDetailCase
-                    _requestDepartmentData.value = requestDetailSendDepartment
 
-                    _requestData.setValue(RequestData(
+                    _requestData.value = RequestData(
                         requestDetailId,
                         requestDetailName,
                         requestDetailDepartment,
@@ -89,7 +86,9 @@ class RequestDetailViewModel: ViewModel(){
                         requestWorkOrderUserSubject,
                         requestWorkOrderSubDescription,
                         requestDenied
-                    ))
+                    )
+
+                    _requestDepartmentData.value = _requestData.value!!.requestSendDepartment
                 } else {
                     _requestCaseData.value = null
                     _requestDepartmentData.value = null
@@ -103,6 +102,7 @@ class RequestDetailViewModel: ViewModel(){
                 Log.e("Firestore", "Veri çekme hatası: ", exception)
             }
     }
+
 
 
     fun workCompleted(requestID: String, context: Context){

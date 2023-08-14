@@ -29,6 +29,12 @@ class RequestUtil {
 
         val intentRequestDetail = "REQUEST_DETAIL"
 
+        val departmentManager = "Departman Müdürü"
+
+        val departmentChief = "Departman Şefi"
+
+        val generalManager = "Genel Müdür"
+
         val requestUtilList = listOf("Talepleri Filtrele",assignedToPerson,waitingForApproval,completed,newRequest,deniedRequest,deniedWork)
 
         fun getRequestStatusColor(requestCase: String): Int {

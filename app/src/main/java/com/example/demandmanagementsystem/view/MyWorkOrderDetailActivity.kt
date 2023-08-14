@@ -2,8 +2,10 @@ package com.example.demandmanagementsystem.view
 
 
 import android.content.Intent
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -208,19 +210,20 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.completed -> {
-                if (binding.textWorkOrderRequestSubject.visibility == View.GONE){
+
+                if (binding.textWorkOrderRequestSubject.text.toString() == ""){
                     viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
                         , util.tempKindWorkOrder,binding)
                 }else {
                     viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
-                        , util.tempKindWorkOrder,binding)
+                        , util.tempKindRequest,binding)
                 }
 
                 true
             }
             R.id.denied -> {
 
-                if (binding.textWorkOrderRequestSubject.visibility == View.GONE){
+                if (binding.textWorkOrderRequestSubject.text.toString() == ""){
                     viewModel.menuDeniedUpdate(this@MyWorkOrderDetailActivity,binding
                         ,util.tempKindWorkOrder)
                 }else {

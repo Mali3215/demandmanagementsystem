@@ -16,6 +16,7 @@ import com.example.demandmanagementsystem.util.WorkOrderUtil
 import com.example.demandmanagementsystem.view.DemandListActivity
 import com.example.demandmanagementsystem.view.MyWorkOrderDetailActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
+import kotlin.math.log
 
 
 class MyWorkOrderDetailViewModel: ViewModel() {
@@ -144,7 +145,6 @@ class MyWorkOrderDetailViewModel: ViewModel() {
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
             "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString()
         )
-
 
         // -> talepli iş emri
         if (tempKind == util.tempKindRequest){
@@ -421,7 +421,7 @@ class MyWorkOrderDetailViewModel: ViewModel() {
         val updateData = hashMapOf<String, Any>(
             "requestCase" to util.completed
         )
-
+        Log.e("workCompleted", "=>$requestID")
         if (requestID != ""){
             reference.requestsCollection()
                 .document(requestID)

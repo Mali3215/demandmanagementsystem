@@ -24,6 +24,8 @@ class RequestDetailActivity : AppCompatActivity() {
     private lateinit var viewModel: RequestDetailViewModel
     private var util = RequestUtil()
     private var requestID: String? = null
+    var userDepartmentType = ""
+    var requestDepartmentType = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +44,27 @@ class RequestDetailActivity : AppCompatActivity() {
         requestID = intent.getStringExtra(util.intentRequestId)
         viewModel.getData(requestID!!)
 
-        val userDepartmentType = viewModel.userDepartmentData.value.toString()
-        val requestDepartmentType = viewModel.requestDepartmentData.value.toString()
+        viewModel.userDepartmentData.observe(this@RequestDetailActivity) { userDepartmant ->
+            if (userDepartmant != null) {
+                userDepartmentType = userDepartmant
+            }
+        }
+        viewModel.requestDepartmentData.observe(this@RequestDetailActivity) { requestDepartmant ->
+            if (requestDepartmant != null) {
+                requestDepartmentType = requestDepartmant
+            }
+        }
+
+
 
         viewModel.getAuthorityType { authorityType ->
+
+
+
+            Log.e("getAuthorityType", "getAuthorityType $userDepartmentType")
+            Log.e("getAuthorityType", "getAuthorityType $userDepartmentType")
+
+
             if (authorityType == "Departman Çalışanı") {
                 binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
                 binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
@@ -53,16 +72,20 @@ class RequestDetailActivity : AppCompatActivity() {
                 // -> burada düzenleme yapılacak
 
                 viewModel.requestCaseData.observe(this) { requestCase ->
+                    Log.e("getAuthorityType", "requestCaseData $userDepartmentType")
+                    Log.e("getAuthorityType", "requestCaseData $userDepartmentType")
+                    Log.e("getAuthorityType", "requestCaseData $requestCase")
+
                     if (requestCase == util.waitingForApproval) {
                         // burada department çalışanı olarak ayar yapılacak gibi
                         binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
                         binding.layoutRequestWorkOrderSubDescription.visibility = View.VISIBLE
                         binding.layoutRequestWorkOrderUserSubject.visibility = View.VISIBLE
-                    }else if (requestCase == util.completed) {
+                    } else if (requestCase == util.completed) {
 
                         binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
 
-                    }else if (requestCase == util.deniedRequest) {
+                    } else if (requestCase == util.deniedRequest) {
 
                         binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
                         binding.layoutRequestDenied.visibility = View.VISIBLE
@@ -71,10 +94,11 @@ class RequestDetailActivity : AppCompatActivity() {
 
                 }
 
-            }else if ((authorityType == "Departman Müdürü") || (authorityType == "Departman Şefi") || (authorityType == "Genel Müdür")){
-
+            }else if((authorityType == util.generalManager) || (authorityType == util.departmentManager) || (authorityType == util.departmentChief)){
                 viewModel.requestCaseData.observe(this) { requestCase ->
-
+                    Log.e("getAuthorityType", " - requestCaseData $userDepartmentType")
+                    Log.e("getAuthorityType", " - requestCaseData $userDepartmentType")
+                    Log.e("getAuthorityType", " - requestCaseData $requestCase")
 
                     if ((requestCase == util.assignedToPerson) ) {
                         binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
@@ -82,7 +106,8 @@ class RequestDetailActivity : AppCompatActivity() {
 
                     } else if (requestCase == util.waitingForApproval) {
 
-
+                        Log.e("RequestDetailActivity", "getMenuItem $userDepartmentType")
+                        Log.e("RequestDetailActivity", "getMenuItem $userDepartmentType")
                         if (userDepartmentType == requestDepartmentType ){
                             binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
                             binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).title = util.menuTitleWorkCompleted
@@ -104,19 +129,20 @@ class RequestDetailActivity : AppCompatActivity() {
                         binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
                     }else if (requestCase == util.newRequest) {
-                        binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = true
-                        binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = true
+                        Log.e("getAuthorityType", " - newRequest"  + " " +  userDepartmentType)
+                        Log.e("getAuthorityType", " - newRequest" + " " +  requestDepartmentType)
+                        Log.e("getAuthorityType", " - newRequest" + " " + requestCase)
+                        if(userDepartmentType == requestDepartmentType){
 
-                        /*
-                         if (userDepartmentType == requestDepartmentType ){
-                            Log.e("RequestDetailActivity", "burada")
                             binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = true
                             binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = true
+
                         }else{
+
                             binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
                             binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
+
                         }
-                         */
 
                     }else if (requestCase == util.deniedRequest) {
                         binding.layoutRequestDenied.visibility = View.VISIBLE
@@ -135,25 +161,10 @@ class RequestDetailActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.openMenuButtonRequest.setOnClickListener {
-            if (binding.menuCardViewRequest.visibility == View.VISIBLE) {
-                binding.menuCardViewRequest.visibility = View.GONE
-
-            } else {
-                binding.menuCardViewRequest.visibility = View.VISIBLE
-            }
-        }
-
-        binding.openMenuButton.setOnClickListener {
-            if (binding.menuCardView.visibility == View.VISIBLE) {
-                binding.menuCardView.visibility = View.GONE
-
-            } else {
-                binding.menuCardView.visibility = View.VISIBLE
-            }
-        }
 
     }
+
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
