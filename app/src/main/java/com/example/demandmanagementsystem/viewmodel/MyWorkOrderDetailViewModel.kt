@@ -272,13 +272,15 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                         document.getString("departmentType").toString(),
                         document.get("businessSubtype") as? List<String>
                     )
+                    if (arrayRequestInfo.size > 1){
+                        if ((jobDetails.departmentType == arrayRequestInfo[1]) &&
+                            (jobDetails.jobType == arrayRequestInfo[0])) {
 
-                    if ((jobDetails.departmentType == arrayRequestInfo[1]) &&
-                        (jobDetails.jobType == arrayRequestInfo[0])) {
-
-                        val list = jobDetails.businessSubtype
-                        resultList.addAll(list ?: emptyList())
+                            val list = jobDetails.businessSubtype
+                            resultList.addAll(list ?: emptyList())
+                        }
                     }
+
                 }
 
                 completion(resultList)
@@ -347,7 +349,8 @@ class MyWorkOrderDetailViewModel: ViewModel() {
             "workOrderRequestType" to _workOrderData.value!!.workOrderRequestType,
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
             "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString(),
-            "createWorkOrderId" to _workOrderData.value!!.createWorkOrderId
+            "createWorkOrderId" to _workOrderData.value!!.createWorkOrderId,
+            "workOrderType" to _workOrderData.value!!.workOrderType
         )
 
         reference

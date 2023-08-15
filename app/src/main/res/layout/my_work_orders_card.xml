@@ -103,6 +103,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
+                        android:visibility="@{myWorkOrder.workOrderSubject != null &amp; !myWorkOrder.workOrderSubject.isEmpty() ? View.VISIBLE : View.GONE}"
                         android:paddingLeft="15dp">
 
                         <TextView
@@ -121,7 +122,8 @@
                             android:layout_margin="5dp"
                             android:text="@{myWorkOrder.workOrderSubject}"
                             android:textSize="15sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                             />
 
                     </LinearLayout>
 

@@ -29,7 +29,6 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
     private val util = WorkOrderUtil()
     private val utilRequest = RequestUtil()
     private lateinit var spinnerDataAdapter: ArrayAdapter<String>
-    private lateinit var spinnerListWorkOrder: List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +62,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
                     binding.relativeLayoutRequestDetail.visibility = View.VISIBLE
                 }
+
             }
 
         }
@@ -108,7 +108,8 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
                         binding.toolbarWorkOrder.menu.findItem(R.id.startedActivity).isVisible = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.confirmJob).isVisible = false
-
+                        binding.spinnerWorkOrderUserSubject.visibility = View.GONE
+                        binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
 
                     }
 
@@ -241,12 +242,21 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.completed -> {
 
-                if (binding.textWorkOrderRequestSubject.text.toString() == null){
-                    viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
-                        , util.tempKindWorkOrder,binding)
-                }else {
-                    viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
-                        , util.tempKindRequest,binding)
+                viewModel.workOrderData.observe(this) {workOrder ->
+
+                    if (workOrder != null) {
+                        if ((workOrder.workOrderDescription.toString() == "") && (workOrder.workOrderSubject.toString() == "")){
+
+                            viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
+                                , util.tempKindRequest,binding)
+                        } else {
+
+                            viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
+                                , util.tempKindWorkOrder,binding)
+                        }
+
+                    }
+
                 }
 
                 true
