@@ -282,8 +282,6 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
             }
             R.id.startedActivity ->{
 
-                binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
-
                 myWorkOrderID?.let {
                     viewModel.startedActivity(this,binding, it)
                 }
