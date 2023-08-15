@@ -76,6 +76,12 @@ class CreateWorkOrderActivity : AppCompatActivity() {
         if (incomingData == 1){
             getSpinner()
             requestID = intent.getStringExtra(util.intentRequestId)
+
+            // -> iş emri bilgileri girmeyi talepler yerinden kaldırıldı sırada
+            // butonların doğru bir şekilde kaldırılması var !!
+            binding.layoutWorkOrderDescription.visibility = View.GONE
+            binding.layoutWorkOrderSubject.visibility = View.GONE
+            binding.layoutWorkOrderType.visibility = View.GONE
             loadingData(requestID!!)
 
         }else{

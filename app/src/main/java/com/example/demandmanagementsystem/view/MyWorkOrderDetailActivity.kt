@@ -5,12 +5,14 @@ import android.content.Intent
 import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.demandmanagementsystem.R
@@ -27,6 +29,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
     private val util = WorkOrderUtil()
     private val utilRequest = RequestUtil()
     private lateinit var spinnerDataAdapter: ArrayAdapter<String>
+    private lateinit var spinnerListWorkOrder: List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +43,20 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
         myWorkOrderID = intent.getStringExtra(util.intentWorkOrderId)
         viewModel.getData(myWorkOrderID!!)
+
+        viewModel.workOrderData.observe(this) {workOrder ->
+
+            if (workOrder != null) {
+                if ((workOrder.workOrderDescription.toString() == "") && (workOrder.workOrderSubject.toString() == "")){
+
+                    binding.relativeWorkOrderInfo.visibility = View.GONE
+                } else {
+
+                    binding.relativeWorkOrderInfo.visibility = View.VISIBLE
+                }
+            }
+        }
+
 
         viewModel.workOrderData.observe(this) { workOrderData ->
             binding.selectedWorkOrder = workOrderData
@@ -103,19 +120,25 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
                 viewModel.getAuthorityType {currentUserId ->
                     if (workOrderData.selectedWorkOrderUserId == currentUserId){
-                        binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = true
 
                         binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
-                        binding.toolbarWorkOrder.menu.findItem(R.id.save).isVisible = true
-
-                        binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
-
 
                         viewModel.getDataSpinnerRequest { list ->
                             getSpinnerRequestData(list)
                         }
 
+                        binding.toolbarWorkOrder.menu.findItem(R.id.save).isVisible = true
+                        binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = true
+                        binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
+
+
                     } else {
+
+                        binding.textWorkOrderUserSubject.apply {
+                            setTextColor(ContextCompat.getColor(this@MyWorkOrderDetailActivity, R.color.black))
+                            inputType = InputType.TYPE_NULL
+                            isEnabled = false
+                        }
                         binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = false
@@ -154,7 +177,10 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
             }
         }
 
+
+
         binding.openMenuButtonWorkOrder.setOnClickListener {
+
             if (binding.menuCardViewWorkOrder.visibility == View.VISIBLE) {
                 binding.menuCardViewWorkOrder.visibility = View.GONE
 
@@ -202,7 +228,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.completed -> {
 
-                if (binding.textWorkOrderRequestSubject.text.toString() == ""){
+                if (binding.textWorkOrderRequestSubject.text.toString() == null){
                     viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
                         , util.tempKindWorkOrder,binding)
                 }else {

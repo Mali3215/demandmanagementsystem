@@ -226,7 +226,7 @@
                     android:paddingTop="5dp"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
-
+                    android:id="@+id/layoutWorkOrderSubject"
                     tools:layout_editor_absoluteX="0dp"
                     tools:layout_editor_absoluteY="427dp">
 
@@ -251,6 +251,7 @@
                     android:paddingTop="5dp"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
+                    android:id="@+id/layoutWorkOrderDescription"
 
                     tools:layout_editor_absoluteX="0dp"
                     tools:layout_editor_absoluteY="517dp">

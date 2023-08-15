@@ -273,7 +273,9 @@
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:id="@+id/relativeWorkOrderInfo">
 
                     <Button
                         android:id="@+id/openMenuButtonWorkOrder"
@@ -419,7 +421,8 @@
                                     android:text="@{selectedWorkOrder.workOrderSubject}"
                                     android:textColor="@color/black"
                                     android:inputType="none"
-                                    android:enabled="false" />
+                                    android:enabled="false"
+                                     />
 
                                 <Spinner
                                     android:id="@+id/spinnerWorkOrderUserSubject"
@@ -445,9 +448,7 @@
                                     android:layout_height="wrap_content"
                                     android:hint="İş Emri Sonuç Açıklaması"
                                     android:text="@{selectedWorkOrder.workOrderSubDescription}"
-                                    android:textColor="@color/black"
-                                    android:inputType="none"
-                                    android:enabled="false"
+
                                     />
                             </com.google.android.material.textfield.TextInputLayout>
                         </LinearLayout>
