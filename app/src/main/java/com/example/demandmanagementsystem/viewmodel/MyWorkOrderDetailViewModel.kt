@@ -90,6 +90,7 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                     val workOrderSubDescription = documentSnapshot.getString("workOrderSubDescription")
                     val workOrderUserSubject = documentSnapshot.getString("workOrderUserSubject")
                     val createWorkOrderId = documentSnapshot.getString("createWorkOrderId")
+                    val workOrderType = documentSnapshot.getString("workOrderType")
 
                     _workOrderData.value = MyWorkOrders(
                         workOrderDetailId,
@@ -108,15 +109,22 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                         workOrderRequestType,
                         workOrderSubDescription,
                         workOrderUserSubject,
-                        createWorkOrderId
+                        createWorkOrderId,
+                        workOrderType
                     )
-                    Log.e("MyWorkOrderDetail", _workOrderData.value!!.workOrderUserSubject.toString())
                     _workOrderUserSubject.value =  _workOrderData.value!!.workOrderUserSubject.toString()
-                    Log.e("MyWorkOrderDetail", _workOrderUserSubject.value.toString())
+
 
                     if ((workOrderRequestType != null) && (workOrderDetailDepartment != null)) {
+                        if (workOrderRequestType != ""){
+                            arrayRequestInfo.add(workOrderRequestType)
+                        }else if(workOrderType != null){
+                            if (workOrderType != ""){
+                                arrayRequestInfo.add(workOrderType)
+                            }
 
-                        arrayRequestInfo.add(workOrderRequestType)
+                        }
+
                         arrayRequestInfo.add(workOrderDetailDepartment)
 
                     }

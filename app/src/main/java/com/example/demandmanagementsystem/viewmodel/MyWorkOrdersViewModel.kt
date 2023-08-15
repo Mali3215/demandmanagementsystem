@@ -73,7 +73,8 @@ class MyWorkOrdersViewModel: ViewModel() {
                                     document.getString("workOrderRequestType").toString(),
                                     document.getString("workOrderSubDescription").toString(),
                                     document.getString("workOrderUserSubject").toString(),
-                                    document.getString("createWorkOrderId").toString()
+                                    document.getString("createWorkOrderId").toString(),
+                                    document.getString("workOrderType").toString()
                                 )
 
                                 if (((departmentType.value == myWorkOrder.workOrderDepartment)

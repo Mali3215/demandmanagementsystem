@@ -54,9 +54,18 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
                     binding.relativeWorkOrderInfo.visibility = View.VISIBLE
                 }
-            }
-        }
 
+
+                if ((workOrder.workOrderRequestDescription.toString() == "") && (workOrder.workOrderRequestSubject.toString() == "")){
+
+                    binding.relativeLayoutRequestDetail.visibility = View.GONE
+                } else {
+
+                    binding.relativeLayoutRequestDetail.visibility = View.VISIBLE
+                }
+            }
+
+        }
 
         viewModel.workOrderData.observe(this) { workOrderData ->
             binding.selectedWorkOrder = workOrderData
@@ -124,12 +133,16 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
                         binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
 
                         viewModel.getDataSpinnerRequest { list ->
+                            Log.e("myactivity", "=> ${list.size}")
                             getSpinnerRequestData(list)
+
+                            binding.toolbarWorkOrder.menu.findItem(R.id.save).isVisible = true
+                            binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = true
+                            binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
+
+
                         }
 
-                        binding.toolbarWorkOrder.menu.findItem(R.id.save).isVisible = true
-                        binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = true
-                        binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
 
 
                     } else {

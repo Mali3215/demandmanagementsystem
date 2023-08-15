@@ -75,7 +75,8 @@ class CreatedWorkOrderViewModel: ViewModel() {
                                     doc.getString("workOrderRequestType").toString(),
                                     doc.getString("workOrderSubDescription").toString(),
                                     doc.getString("workOrderUserSubject").toString(),
-                                    doc.getString("createWorkOrderId").toString()
+                                    doc.getString("createWorkOrderId").toString(),
+                                    doc.getString("workOrderType".toString())
                                 )
 
                                 if (workOrder.createWorkOrderId == userId){

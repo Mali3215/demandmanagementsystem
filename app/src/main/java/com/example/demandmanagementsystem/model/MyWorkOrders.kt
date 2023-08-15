@@ -16,6 +16,7 @@ data class MyWorkOrders(    var workOrderID: String?,
                             var workOrderRequestType: String?,
                             var workOrderSubDescription: String?,
                             var workOrderUserSubject: String?,
-                            var createWorkOrderId: String?
+                            var createWorkOrderId: String?,
+                            var workOrderType: String?
 ) {
 }
