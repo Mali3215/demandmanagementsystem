@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 }.addOnFailureListener { exception ->
-                    Log.e("Hata","${exception.localizedMessage}")
+                    Log.e("MainActivity","oncreate => ${exception.localizedMessage}")
                     Toast.makeText(this@MainActivity, "Kullanıcı Adı veya Şifre Hatalı", Toast.LENGTH_LONG).show()
                 }
             }else{

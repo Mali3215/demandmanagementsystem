@@ -78,16 +78,16 @@ class CreatedRequestsViewModel: ViewModel() {
                         }
                         .addOnFailureListener {
                             createdRequestsLoading.value = false
-                            Log.e("CreatedRequestViewModel", "FireStore Veri Çekme Hatası")
+                            Log.e("CreatedRequestViewModel", "fetchData => FireStore Veri Çekme Hatası")
                         }
                 } else {
                     createdRequestsLoading.value = false
-                    Log.d("CreatedRequestViewModel", "Kullanıcı bulunamadı")
+                    Log.d("CreatedRequestViewModel", "fetchData => Kullanıcı bulunamadı")
                 }
             }
             .addOnFailureListener { exception ->
                 createdRequestsLoading.value = false
-                Log.e("CreatedRequestViewModel", "Veri çekme hatası: ", exception)
+                Log.e("CreatedRequestViewModel", "fetchData => Veri çekme hatası: ", exception)
             }
     }
 
@@ -111,12 +111,12 @@ class CreatedRequestsViewModel: ViewModel() {
                     _authorityType.value = authorityType
                 } else {
                     createdRequestsLoading.value = false
-                    Log.d("CreatedRequestViewModel", "Kullanıcı bulunamadı")
+                    Log.d("CreatedRequestViewModel", "getData => Kullanıcı bulunamadı")
                 }
             }
             .addOnFailureListener { exception ->
                 createdRequestsLoading.value = false
-                Log.e("CreatedRequestViewModel", "Veri çekme hatası: ", exception)
+                Log.e("CreatedRequestViewModel", "getData => Veri çekme hatası: ", exception)
             }
 
     }

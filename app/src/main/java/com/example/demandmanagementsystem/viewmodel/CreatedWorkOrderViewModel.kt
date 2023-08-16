@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.model.MyWorkOrders
-import com.example.demandmanagementsystem.model.Requests
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.SortListByDate
 
@@ -94,16 +93,16 @@ class CreatedWorkOrderViewModel: ViewModel() {
                             createdWorkOrderLoading.value = false
                         }.addOnFailureListener {
                             createdWorkOrderLoading.value = false
-                            Log.e("CreatedWorkOrderViewModel", "FireStore Veri Çekme Hatası")
+                            Log.e("CreatedWorkOrderViewModel", "fetchData => FireStore Veri Çekme Hatası")
                         }
 
                 } else {
                     createdWorkOrderLoading.value = false
-                    Log.d("CreatedWorkOrderViewModel", "Kullanıcı bulunamadı")
+                    Log.d("CreatedWorkOrderViewModel", "fetchData => Kullanıcı bulunamadı")
                 }
             } .addOnFailureListener { exception ->
                 createdWorkOrderLoading.value = false
-                Log.e("CreatedWorkOrderViewModel", "Veri çekme hatası: ", exception)
+                Log.e("CreatedWorkOrderViewModel", "fetchData => Veri çekme hatası: ", exception)
             }
 
 
@@ -128,12 +127,12 @@ class CreatedWorkOrderViewModel: ViewModel() {
                     _authorityType.value = authorityType
                 } else {
                     createdWorkOrderLoading.value = false
-                    Log.d("CreatedWorkOrderViewModel", "Kullanıcı bulunamadı")
+                    Log.d("CreatedWorkOrderViewModel", "getData => Kullanıcı bulunamadı")
                 }
             }
             .addOnFailureListener { exception ->
                 createdWorkOrderLoading.value = false
-                Log.e("CreatedWorkOrderViewModel", "Veri çekme hatası: ", exception)
+                Log.e("CreatedWorkOrderViewModel", "getData => Veri çekme hatası: ", exception)
             }
     }
 

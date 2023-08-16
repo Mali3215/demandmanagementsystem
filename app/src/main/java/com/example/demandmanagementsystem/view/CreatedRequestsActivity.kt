@@ -17,12 +17,14 @@ import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.databinding.ActivityCreatedRequestsBinding
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.viewmodel.CreatedRequestsViewModel
+import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
 
 class CreatedRequestsActivity : AppCompatActivity()
     , SearchView.OnQueryTextListener{
 
     private lateinit var binding: ActivityCreatedRequestsBinding
     private lateinit var viewModel: CreatedRequestsViewModel
+    private lateinit var viewModelDemand: DemandListViewModel
     private lateinit var adapter: RequestAdapter
     private val util = RequestUtil()
     private lateinit  var spinnerDataAdapter: ArrayAdapter<String>
@@ -40,10 +42,10 @@ class CreatedRequestsActivity : AppCompatActivity()
         binding.toolbarCreatedRequests.title = "Requests Created"
         binding.toolbarCreatedRequests.visibility = View.VISIBLE
         setSupportActionBar(binding.toolbarCreatedRequests)
-
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         viewModel = ViewModelProvider(this).get(CreatedRequestsViewModel::class.java)
-
+        viewModelDemand = ViewModelProvider(this).get(DemandListViewModel::class.java)
         binding.swipeRefreshLayout.setOnRefreshListener {
             binding.spinnerCreatedRequestsFilter.setSelection(0)
             viewModel.fetchData()
@@ -85,7 +87,6 @@ class CreatedRequestsActivity : AppCompatActivity()
                         adapter = RequestAdapter(this@CreatedRequestsActivity, createdRequests!!)
                         binding.recyclerViewCreatedRequests.adapter = adapter
                     }
-
                     viewModel.getData()
                     viewModel.fetchData()
                 }else{
@@ -99,18 +100,11 @@ class CreatedRequestsActivity : AppCompatActivity()
                 }
 
             }
-
             override fun onNothingSelected(p0: AdapterView<*>?) {
-                TODO("Not yet implemented")
+
             }
-
-
         }
-
-
-
     }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu,menu)
 
@@ -129,10 +123,17 @@ class CreatedRequestsActivity : AppCompatActivity()
                 viewModel.getData()
                 true
             }
+            android.R.id.home -> {
+                onBackPressed() // Geri dönme işlemini yapar
+                return true
+            }
+            R.id.add_action -> {
+                viewModelDemand.onCreateRequestClick(this@CreatedRequestsActivity)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
-
     override fun onQueryTextChange(newText: String?): Boolean {
         if (newText != null) {
             Log.e("onQueryTextChange",newText)

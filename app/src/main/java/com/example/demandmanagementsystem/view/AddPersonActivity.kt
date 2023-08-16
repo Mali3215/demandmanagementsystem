@@ -1,7 +1,5 @@
 package com.example.demandmanagementsystem.view
 
-
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -17,11 +15,6 @@ import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.databinding.ActivityAddPersonBinding
 import com.example.demandmanagementsystem.model.UserData
 import com.example.demandmanagementsystem.viewmodel.AddPersonViewModel
-import com.example.demandmanagementsystem.viewmodel.RequestDetailViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class AddPersonActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPersonBinding
@@ -42,6 +35,7 @@ class AddPersonActivity : AppCompatActivity() {
 
             binding.toolbarAddPerson.title = "Kullanıcı Tanımları"
             setSupportActionBar(binding.toolbarAddPerson)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
             viewModel.departmentTypeList.observe(this, Observer { departmentList ->
                 departmentList?.let {
@@ -138,6 +132,10 @@ class AddPersonActivity : AppCompatActivity() {
 
                 alerDialog.create().show()
                 true
+            }
+            android.R.id.home -> {
+                onBackPressed() // Geri dönme işlemini yapar
+                return true
             }
             else -> super.onOptionsItemSelected(item)
         }

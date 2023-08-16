@@ -19,7 +19,7 @@ class SortListByDate {
         val dateFormat = SimpleDateFormat("HH:mm-dd/MM/yyyy", Locale.getDefault())
 
         return myWorkOrderList.sortedByDescending { myWorkOrder ->
-            dateFormat.parse(myWorkOrder.workOrderDate)
+            myWorkOrder.workOrderDate?.let { dateFormat.parse(it) }
         }
     }
 

@@ -11,24 +11,20 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.adapter.MyWorkOrdersAdapter
-import com.example.demandmanagementsystem.adapter.RequestAdapter
-import com.example.demandmanagementsystem.databinding.ActivityCreatedRequestsBinding
 import com.example.demandmanagementsystem.databinding.ActivityCreatedWorkOrderBinding
-import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.util.WorkOrderUtil
-import com.example.demandmanagementsystem.viewmodel.CreateWorkOrderViewModel
-import com.example.demandmanagementsystem.viewmodel.CreatedRequestsViewModel
 import com.example.demandmanagementsystem.viewmodel.CreatedWorkOrderViewModel
+import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
 
 class CreatedWorkOrderActivity : AppCompatActivity()
     , SearchView.OnQueryTextListener{
 
     private lateinit var binding: ActivityCreatedWorkOrderBinding
     private lateinit var viewModel: CreatedWorkOrderViewModel
+    private lateinit var viewModelDemand: DemandListViewModel
     private lateinit var adapter: MyWorkOrdersAdapter
     private val util = WorkOrderUtil()
     private lateinit var spinnerDataAdapter: ArrayAdapter<String>
@@ -47,9 +43,10 @@ class CreatedWorkOrderActivity : AppCompatActivity()
         binding.toolbarCreatedWorkOrder.title = "Work Order Created"
         binding.toolbarCreatedWorkOrder.visibility = View.VISIBLE
         setSupportActionBar(binding.toolbarCreatedWorkOrder)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         viewModel = ViewModelProvider(this).get(CreatedWorkOrderViewModel::class.java)
-
+        viewModelDemand = ViewModelProvider(this).get(DemandListViewModel::class.java)
         binding.swipeRefreshLayoutCreatedWorkOrder.setOnRefreshListener {
             viewModel.fetchData()
             viewModel.getData()
@@ -129,6 +126,14 @@ class CreatedWorkOrderActivity : AppCompatActivity()
 
                 viewModel.fetchData()
                 viewModel.getData()
+                true
+            }
+            android.R.id.home -> {
+                onBackPressed() // Geri dönme işlemini yapar
+                return true
+            }
+            R.id.add_action -> {
+                viewModelDemand.onCreateWorkOrderClick(this@CreatedWorkOrderActivity)
                 true
             }
             else -> super.onOptionsItemSelected(item)

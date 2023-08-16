@@ -55,7 +55,7 @@ class CreateRequestViewModel: ViewModel() {
             }
             .addOnFailureListener { exception ->
                 departmentTypeList.postValue(null)
-                Log.e("RequestViewModel", "Firestore Veri Çekme Hatası: $exception")
+                Log.e("CreateRequestViewModel", "fetchDepartmentTypes => Firestore Veri Çekme Hatası: $exception")
             }
     }
 
@@ -87,12 +87,12 @@ class CreateRequestViewModel: ViewModel() {
                         textRequestTelNo.setText(telNo)
                     }
                 } else {
-                    Log.d("Firestore", "Kullanıcı bulunamadı")
+                    Log.d("CreateRequestViewModel", "fetchDepartmentTypes => Kullanıcı bulunamadı")
                 }
 
             }
             .addOnFailureListener { exception ->
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
+                Log.e("CreateRequestViewModel", "fetchDepartmentTypes => Veri çekme hatası: ", exception)
             }
     }
 
@@ -134,11 +134,15 @@ class CreateRequestViewModel: ViewModel() {
                     "Talep Oluşturuldu", Toast.LENGTH_SHORT
                 ).show()
 
-                Log.d("CreateRequestViewModel", "Firestore'a talep başarıyla eklendi.")
+                Log.d("CreateRequestViewModel", "fetchDepartmentTypes => Firestore'a talep başarıyla eklendi.")
                 _requestCreationStatus.value = true
             }
             .addOnFailureListener { e ->
-                Log.e("CreateRequestViewModel", "Firestore'a talep ekleme hatası: $e")
+                Toast.makeText(
+                    context,
+                    "Hata! Talep Oluşturulamadı", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("CreateRequestViewModel", "fetchDepartmentTypes => Firestore'a talep ekleme hatası: $e")
 
                 _requestCreationStatus.value = false
             }
@@ -150,7 +154,6 @@ class CreateRequestViewModel: ViewModel() {
             .get()
             .addOnSuccessListener { documentSnapshot ->
                 val tempList = ArrayList<JobDetails>() // Yeni bir liste oluştur
-                Log.d("CreateRequestViewModel", "Total documents: ${documentSnapshot.size()}")
                 for (document in documentSnapshot){
                     val jobDetails = JobDetails(
                         document.id,
@@ -167,7 +170,7 @@ class CreateRequestViewModel: ViewModel() {
                 jobDetailsList.value = jobDetailsListTemp
 
             }.addOnFailureListener {
-                Log.e("CreateRequestViewModel","getJobDetails fonksiyonunda hata")
+                Log.e("CreateRequestViewModel","getJobDetails =>  fonksiyonunda hata")
             }
     }
 

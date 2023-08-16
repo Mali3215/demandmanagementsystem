@@ -13,7 +13,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.databinding.ActivityCreateWorkOrderBinding
@@ -30,7 +29,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.HashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -67,7 +65,7 @@ class CreateWorkOrderActivity : AppCompatActivity() {
         jobDetailsListTemp = ArrayList()
         binding.toolbarWorkOrder.title = "WorkOrder"
         setSupportActionBar(binding.toolbarWorkOrder)
-
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         viewModel = ViewModelProvider(this).get(CreateWorkOrderViewModel::class.java)
 
 
@@ -76,9 +74,6 @@ class CreateWorkOrderActivity : AppCompatActivity() {
         if (incomingData == 1){
             getSpinner()
             requestID = intent.getStringExtra(util.intentRequestId)
-
-            // -> iş emri bilgileri girmeyi talepler yerinden kaldırıldı sırada
-            // butonların doğru bir şekilde kaldırılması var !!
             binding.layoutWorkOrderDescription.visibility = View.GONE
             binding.layoutWorkOrderSubject.visibility = View.GONE
             binding.layoutWorkOrderType.visibility = View.GONE
@@ -118,7 +113,7 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                     // ...
                 } catch (e: Exception) {
                     // Hata yönetimi burada yapılır
-                    Log.e("AsyncFunctions", "Hata: ${e.message}")
+                    Log.e("CreateWorkOrderActivity", "CoroutineScope => Hata: ${e.message}")
                 }
             }
         }
@@ -142,7 +137,7 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                     continuation.resume(tempList)
                 }
                 .addOnFailureListener {
-                    Log.e("CreateRequestViewModel", "getJobDetails fonksiyonunda hata")
+                    Log.e("CreateWorkOrderActivity", "getJobDetails => fonksiyonunda hata")
                     continuation.resumeWithException(it)
                 }
         }
@@ -171,12 +166,12 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                             continuation.resume(departmentType.toString())
                         }
                     } else {
-                        Log.d("Firestore", "Kullanıcı bulunamadı")
+                        Log.d("CreateWorkOrderActivity", "loadUserData => Kullanıcı bulunamadı")
                         continuation.resume("")
                     }
                 }
                 .addOnFailureListener { exception ->
-                    Log.e("Firestore", "Veri çekme hatası: ", exception)
+                    Log.e("CreateWorkOrderActivity", "loadUserData => Veri çekme hatası: ", exception)
                     continuation.resumeWithException(exception)
                 }
         }
@@ -284,7 +279,7 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                 completion(resultList)
             }
             .addOnFailureListener {
-                Log.e("CreateWorkOrderActivity", "getDataSpinnerRequest")
+                Log.e("CreateWorkOrderActivity", "getDataSpinnerRequest => getDataSpinnerRequest")
                 completion(emptyList())
             }
     }
@@ -340,12 +335,12 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                         callback.invoke()
                     }
                     .addOnFailureListener {
-                        Log.e("FireStore", "FireStore Veri Çekme Hatası")
+                        Log.e("CreateWorkOrderActivity", "getUsersDataSpinner => FireStore Veri Çekme Hatası")
                         callback.invoke()
                     }
             }
             .addOnFailureListener {
-                Log.e("FireStore", "FireStore Veri Çekme Hatası")
+                Log.e("CreateWorkOrderActivity", "getUsersDataSpinner => FireStore Veri Çekme Hatası")
                 callback.invoke()
             }
     }
@@ -391,12 +386,12 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
                     } else {
 
-                        Log.d("Firestore", "Talep bulunamadı")
+                        Log.d("CreateWorkOrderActivity", "loadingData => Talep bulunamadı")
                     }
                 }
                 .addOnFailureListener { exception ->
 
-                    Log.e("Firestore", "Veri çekme hatası: ", exception)
+                    Log.e("CreateWorkOrderActivity", "loadingData => Veri çekme hatası: ", exception)
                 }
         }
 
@@ -421,12 +416,12 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                     }
                 } else {
 
-                    Log.d("Firestore", "Kullanıcı bulunamadı")
+                    Log.d("CreateWorkOrderActivity", "loadingData => userscollec =>  Kullanıcı bulunamadı")
                 }
             }
             .addOnFailureListener { exception ->
 
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
+                Log.e("CreateWorkOrderActivity", "loadingData => usercollec => Veri çekme hatası: ", exception)
             }
 
     }
@@ -508,17 +503,17 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                             .document()
                             .set(workOrder)
                             .addOnSuccessListener {
-                                Log.d("CreateWorkOrderActivity", "Firestore'a iş emri başarıyla eklendi.")
+                                Log.d("CreateWorkOrderActivity", "onOptionsItemSelected => Firestore'a iş emri başarıyla eklendi.")
                                 Toast.makeText(this@CreateWorkOrderActivity,"İş Emri Gönderildi", Toast.LENGTH_SHORT).show()
 
                                 val intent = Intent(this@CreateWorkOrderActivity, DemandListActivity::class.java)
                                 startActivity(intent)
                                 finish()
 
-
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(this@CreateWorkOrderActivity,"Hata", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@CreateWorkOrderActivity,"Hata! İş Emri Gönderilemedi", Toast.LENGTH_SHORT).show()
+                                Log.e("CreateWorkOrderActivity","")
                             }
 
                         val requestCollectionRef = firestore.collection("requests")
@@ -532,11 +527,11 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                                 .document(workOrderRequestId!!)
                                 .update(updateData)
                                 .addOnSuccessListener {
-                                    Toast.makeText(this@CreateWorkOrderActivity, "Güncelleme başarılı!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@CreateWorkOrderActivity, "İş Yapacak Kişiye Atandı!", Toast.LENGTH_SHORT).show()
                                 }
                                 .addOnFailureListener { e ->
-
-                                    Toast.makeText(this@CreateWorkOrderActivity, "Hata: $e", Toast.LENGTH_SHORT).show()
+                                    Log.e("CreateWorkOrderActivity","onOptionsItemSelected => requestCollectionRef")
+                                    Toast.makeText(this@CreateWorkOrderActivity, "Hata! İş Yapacak Kişiye Atanamadı", Toast.LENGTH_SHORT).show()
                                 }
                         }
                     }else {
@@ -547,7 +542,6 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                         val day = calendar.get(Calendar.DAY_OF_MONTH)
                         val hour = calendar.get(Calendar.HOUR_OF_DAY)
                         val minute = calendar.get(Calendar.MINUTE)
-
 
                         val workordersCollectionRef = firestore.collection("workorders")
 
@@ -566,8 +560,6 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                         val workOrderRequestType =binding.textWorkOrderRequestType.text.toString()
                         val workOrderType = binding.textWorkOrderType.text.toString()
                         val createWorkOrderId = userId
-
-
 
                         val workOrder = hashMapOf(
                             "workOrderRequestId" to workOrderRequestId,
@@ -591,17 +583,16 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                             .document(incomingData)
                             .set(workOrder)
                             .addOnSuccessListener {
-                                Log.d("CreateWorkOrderActivity", "Firestore'a iş emri başarıyla eklendi.")
+                                Log.d("CreateWorkOrderActivity", "onOptionsItemSelected => Firestore'a iş emri başarıyla eklendi.")
                                 Toast.makeText(this@CreateWorkOrderActivity,"İş Emri Gönderildi", Toast.LENGTH_SHORT).show()
 
                                 val intent = Intent(this@CreateWorkOrderActivity, DemandListActivity::class.java)
                                 startActivity(intent)
                                 finish()
-
-
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(this@CreateWorkOrderActivity,"Hata", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@CreateWorkOrderActivity,"Hata! İş Emri Gönderilemedi", Toast.LENGTH_SHORT).show()
+                                Log.e("CreateWorkOrderActivity","onOptionsItemSelected => WorkOrderRef")
                             }
 
                         val requestCollectionRef = firestore.collection("requests")
@@ -615,29 +606,24 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                                 .document(workOrderRequestId!!)
                                 .update(updateData)
                                 .addOnSuccessListener {
-                                    Toast.makeText(this@CreateWorkOrderActivity, "Güncelleme başarılı!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@CreateWorkOrderActivity, "İş Yapacak Kişiye Atandı!", Toast.LENGTH_SHORT).show()
                                 }
                                 .addOnFailureListener { e ->
-
-                                    Toast.makeText(this@CreateWorkOrderActivity, "Hata: $e", Toast.LENGTH_SHORT).show()
+                                    Log.e("CreateWorkOrderActivity"," onOptionsItemSelected =< reqCollec")
+                                    Toast.makeText(this@CreateWorkOrderActivity, "Hata: İş Yapacak Kişiye Atanamadı", Toast.LENGTH_SHORT).show()
                                 }
                         }
-
                     }
-
-
-
-
                 }
 
                 alerDialog.setNegativeButton("Hayır"){ dialogInterface, i ->
-
                 }
-
                 alerDialog.create().show()
-
-
                 true
+            }
+            android.R.id.home -> {
+                onBackPressed() // Geri dönme işlemini yapar
+                return true
             }
             else -> super.onOptionsItemSelected(item)
         }

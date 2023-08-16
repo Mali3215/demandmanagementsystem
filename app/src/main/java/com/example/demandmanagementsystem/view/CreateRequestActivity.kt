@@ -34,7 +34,7 @@ class CreateRequestActivity : AppCompatActivity() {
 
         binding.toolbarRequest.title = "Request"
         setSupportActionBar(binding.toolbarRequest)
-
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         viewModel = ViewModelProvider(this).get(CreateRequestViewModel::class.java)
 
         viewModel.requestFill(binding)
@@ -195,6 +195,10 @@ class CreateRequestActivity : AppCompatActivity() {
                 alerDialog.create().show()
 
                 true
+            }
+            android.R.id.home -> {
+                onBackPressed() // Geri dönme işlemini yapar
+                return true
             }
             else -> super.onOptionsItemSelected(item)
         }

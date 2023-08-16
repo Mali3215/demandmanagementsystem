@@ -86,16 +86,16 @@ class DemandListViewModel : ViewModel() {
                         }
                         .addOnFailureListener {
                             requestLoading.value = false
-                            Log.e("Firestore", "FireStore Veri Çekme Hatası")
+                            Log.e("DemandListViewModel", "fetchData => FireStore Veri Çekme Hatası")
                         }
                 } else {
                     requestLoading.value = false
-                    Log.d("Firestore", "Kullanıcı bulunamadı")
+                    Log.d("DemandListViewModel", "fetchData => Kullanıcı bulunamadı")
                 }
             }
             .addOnFailureListener { exception ->
                 requestLoading.value = false
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
+                Log.e("DemandListViewModel", "fetchData => Veri çekme hatası: ", exception)
             }
     }
 
@@ -120,12 +120,12 @@ class DemandListViewModel : ViewModel() {
                     _authorityType.value = authorityType
                 } else {
                     requestLoading.value = false
-                    Log.d("Firestore", "Kullanıcı bulunamadı")
+                    Log.d("DemandListViewModel", "getData => Kullanıcı bulunamadı")
                 }
             }
             .addOnFailureListener { exception ->
                 requestLoading.value = false
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
+                Log.e("DemandListViewModel", "getData => Veri çekme hatası: ", exception)
             }
 
     }

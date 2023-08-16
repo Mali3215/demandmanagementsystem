@@ -1,6 +1,7 @@
 package com.example.demandmanagementsystem.view
 
 
+import android.os.Binder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -92,6 +93,7 @@ class DemandListActivity : AppCompatActivity()
                 binding.requestListloading.visibility = View.VISIBLE
                 binding.recyclerViewDemandList.visibility = View.GONE
             } else {
+
                 binding.requestListloading.visibility = View.GONE
                 binding.recyclerViewDemandList.visibility = View.VISIBLE
             }
@@ -100,7 +102,9 @@ class DemandListActivity : AppCompatActivity()
 
 
         viewModel.authorityType.observe(this) { authorityType ->
+
             if (authorityType == "Departman Çalışanı") {
+
                 binding.navigationView.menu.findItem(R.id.createWorkOrder).isVisible = false
                 binding.navigationView.menu.findItem(R.id.addPerson).isVisible = false
                 binding.navigationView.menu.findItem(R.id.createdWorkOrder).isVisible = false
@@ -148,6 +152,7 @@ class DemandListActivity : AppCompatActivity()
 
         }
 
+
     }
 
     override fun onBackPressed() {
@@ -163,7 +168,7 @@ class DemandListActivity : AppCompatActivity()
         val item = menu.findItem(R.id.search_demand)
         val searchView = item.actionView as SearchView
         searchView.setOnQueryTextListener(this@DemandListActivity)
-
+        binding.toolbar.menu.findItem(R.id.add_action).isVisible = false
         return super.onCreateOptionsMenu(menu)
     }
 

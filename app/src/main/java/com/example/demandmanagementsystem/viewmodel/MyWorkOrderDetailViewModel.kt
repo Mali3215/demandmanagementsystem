@@ -16,7 +16,6 @@ import com.example.demandmanagementsystem.util.WorkOrderUtil
 import com.example.demandmanagementsystem.view.DemandListActivity
 import com.example.demandmanagementsystem.view.MyWorkOrderDetailActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
-import kotlin.math.log
 
 
 class MyWorkOrderDetailViewModel: ViewModel() {
@@ -45,23 +44,6 @@ class MyWorkOrderDetailViewModel: ViewModel() {
         val currentUserId = user?.uid
 
         callback.invoke(currentUserId)
-
-
-        /*if (userId != null) {
-            reference.usersCollection().document(userId)
-                .get()
-                .addOnSuccessListener { documentSnapshot ->
-                    val authorityType = documentSnapshot.getString("authorityType")
-                    val departmentType = documentSnapshot.getString("deparmentType")
-                    _userDepartmentData.value = departmentType
-                    callback.invoke(authorityType)
-                }
-                .addOnFailureListener { exception ->
-                    callback.invoke(null)
-                }
-        } else {
-            callback.invoke(null)
-        }*/
     }
 
 
@@ -136,7 +118,7 @@ class MyWorkOrderDetailViewModel: ViewModel() {
             }
             .addOnFailureListener { exception ->
                 _workOrderData.value = null
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
+                Log.e("MyWorkOrderDetailViewModel", "getData => Veri çekme hatası: ", exception)
             }
     }
 
@@ -170,10 +152,14 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                         "İş Onaya Gönderildi", Toast.LENGTH_SHORT
                     ).show()
 
-                    Log.e("MyWorkOrderDetailViewModel", "Güncellendi ")
+                    Log.e("MyWorkOrderDetailViewModel", "menuComletedUpdate => Güncellendi ")
                 }
                 .addOnFailureListener { e ->
-                    Log.e("MyWorkOrderDetailViewModel", "Hata ")
+                    Toast.makeText(
+                        context,
+                        "Hata! İş Onaya Gönderilemedi", Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e("MyWorkOrderDetailViewModel", "menuComletedUpdate => Hata ")
                 }
         }
 
@@ -191,10 +177,14 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                     "İş Onaya Gönderildi", Toast.LENGTH_SHORT
                 ).show()
 
-                Log.e("MyWorkOrderDetailViewModel", "Güncellendi ")
+                Log.e("MyWorkOrderDetailViewModel", "menuComletedUpdate => Güncellendi ")
             }
             .addOnFailureListener { e ->
-                Log.e("MyWorkOrderDetailViewModel", "Hata ")
+                Toast.makeText(
+                    context,
+                    "Hata! İş Onaya Gönderilemedi", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("MyWorkOrderDetailViewModel", "menuComletedUpdate => Hata ")
             }
 
     }
@@ -225,10 +215,14 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                         context,
                         "İş Reddedildi", Toast.LENGTH_SHORT
                     ).show()
-                    Log.e("MyWorkOrderDetailViewModel", "Güncellendi ")
+                    Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => Güncellendi ")
                 }
                 .addOnFailureListener { e ->
-                    Log.e("MyWorkOrderDetailViewModel", "Hata ")
+                    Toast.makeText(
+                        context,
+                        "Hata! İş Reddedilemedi", Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => Hata ")
                 }
         }
 
@@ -246,10 +240,14 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                     context,
                     "İş Reddedildi", Toast.LENGTH_SHORT
                 ).show()
-                Log.e("MyWorkOrderDetailViewModel", "Güncellendi ")
+                Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => work => Güncellendi ")
             }
             .addOnFailureListener { e ->
-                Log.e("MyWorkOrderDetailViewModel", "Hata ")
+                Toast.makeText(
+                    context,
+                    "Hata! İş Reddedilemedi", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => work => Hata ")
             }
 
     }
@@ -286,7 +284,7 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                 completion(resultList)
             }
             .addOnFailureListener {
-                Log.e("CreateWorkOrderActivity", "getDataSpinnerRequest")
+                Log.e("MyWorkOrderDetailViewModel", "getDataSpinnerRequest")
                 completion(emptyList())
             }
     }
@@ -308,11 +306,18 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                 intent.putExtra(util.intentWorkOrderId, myWorkOrderID)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                 context.startActivity(intent)
-
-                Log.e("updateStartRequest", "Güncellendi ")
+                Toast.makeText(
+                    context,
+                    "Aktiviteye Başlandı", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("MyWorkOrderDetailViewModel", "updateStartRequest => Güncellendi ")
             }
             .addOnFailureListener { e ->
-                Log.e("updateStartRequest", "Hata ")
+                Toast.makeText(
+                    context,
+                    "Aktiviteye Başlanamadı", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("MyWorkOrderDetailViewModel", "updateStartRequest => Hata ")
             }
     }
 
@@ -361,9 +366,10 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                 val intent = Intent(context,MyWorkOrdersActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                 context.startActivity(intent)
-                Toast.makeText(context, "Güncellendi" , Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "İş Emri Kaydedildi" , Toast.LENGTH_SHORT).show()
             }.addOnFailureListener {
-                Log.e("workOrderSave", "güncellenmedi")
+                Toast.makeText(context, "Hata! İş Emri Kaydedilemedi" , Toast.LENGTH_SHORT).show()
+                Log.e("MyWorkOrderDetailViewModel", "workOrderSave => güncellenmedi")
             }
 
 
@@ -402,9 +408,10 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                 val intent = Intent(context,MyWorkOrdersActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                 context.startActivity(intent)
-                Toast.makeText(context, "Güncellendi" , Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "İş İade Edildi" , Toast.LENGTH_SHORT).show()
             }.addOnFailureListener {
-                Log.e("workOrderSave", "güncellenmedi")
+                Toast.makeText(context, "Hata! İş İade Edilemedi" , Toast.LENGTH_SHORT).show()
+                Log.e("MyWorkOrderDetailViewModel", "jobReturn => güncellenmedi")
             }
 
     }
@@ -426,13 +433,17 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                 ).show()
 
             }.addOnFailureListener { e ->
-                Log.e("RequestDetailViewModel", "Hata ")
+                Toast.makeText(
+                    context,
+                    "Hata! İş Tamamlanamadı", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("RequestDetailViewModel", "workCompleted => work Hata ")
             }
 
         val updateData = hashMapOf<String, Any>(
             "requestCase" to util.completed
         )
-        Log.e("workCompleted", "=>$requestID")
+        Log.e("MyWorkOrderDetailViewModel", "=>$requestID")
         if (requestID != ""){
             reference.requestsCollection()
                 .document(requestID)
@@ -445,7 +456,11 @@ class MyWorkOrderDetailViewModel: ViewModel() {
                     ).show()
 
                 }.addOnFailureListener { e ->
-                    Log.e("RequestDetailViewModel", "Hata ")
+                    Toast.makeText(
+                        context,
+                        "Hata! İş Tamamlanamadı", Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e("MyWorkOrderDetailViewModel", "workCompleted => ref => Hata ")
                 }
         }
 
@@ -455,3 +470,30 @@ class MyWorkOrderDetailViewModel: ViewModel() {
 
 
 }
+
+/*
+   fun getAuthorityType(callback: (String?) -> (Unit)) {
+        val user = reference.getFirebaseAuth().currentUser
+        val currentUserId = user?.uid
+
+        callback.invoke(currentUserId)
+
+
+        /*if (userId != null) {
+            reference.usersCollection().document(userId)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val authorityType = documentSnapshot.getString("authorityType")
+                    val departmentType = documentSnapshot.getString("deparmentType")
+                    _userDepartmentData.value = departmentType
+                    callback.invoke(authorityType)
+                }
+                .addOnFailureListener { exception ->
+                    callback.invoke(null)
+                }
+        } else {
+            callback.invoke(null)
+        }*/
+    }
+
+ */

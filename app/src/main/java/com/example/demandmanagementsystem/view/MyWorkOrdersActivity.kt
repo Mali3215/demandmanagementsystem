@@ -14,12 +14,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.adapter.MyWorkOrdersAdapter
-import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.databinding.ActivityMyWorkOrdersBinding
-import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.util.WorkOrderUtil
-import com.example.demandmanagementsystem.viewmodel.CreateWorkOrderViewModel
-import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
 import com.example.demandmanagementsystem.viewmodel.MyWorkOrdersViewModel
 
 class MyWorkOrdersActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
@@ -43,7 +39,7 @@ class MyWorkOrdersActivity : AppCompatActivity(), SearchView.OnQueryTextListener
         binding.toolbarMyWorkOrder.title = "MyWorkOrder"
         binding.toolbarMyWorkOrder.visibility = View.VISIBLE
         setSupportActionBar(binding.toolbarMyWorkOrder)
-
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             binding.spinnerWorkOrderFilter.setSelection(0)
@@ -104,21 +100,16 @@ class MyWorkOrdersActivity : AppCompatActivity(), SearchView.OnQueryTextListener
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
             }
-
         }
-
-
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu,menu)
-
         val item = menu.findItem(R.id.search_demand)
         val searchView = item.actionView as SearchView
         searchView.setOnQueryTextListener(this@MyWorkOrdersActivity)
-
+        binding.toolbarMyWorkOrder.menu.findItem(R.id.add_action).isVisible = false
         return super.onCreateOptionsMenu(menu)
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
@@ -126,6 +117,10 @@ class MyWorkOrdersActivity : AppCompatActivity(), SearchView.OnQueryTextListener
                 viewModel.fetchData()
                 viewModel.getData()
                 true
+            }
+            android.R.id.home -> {
+                onBackPressed() // Geri dönme işlemini yapar
+                return true
             }
             else -> super.onOptionsItemSelected(item)
         }

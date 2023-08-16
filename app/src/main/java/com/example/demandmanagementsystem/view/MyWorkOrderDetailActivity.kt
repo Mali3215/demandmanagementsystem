@@ -2,7 +2,6 @@ package com.example.demandmanagementsystem.view
 
 
 import android.content.Intent
-import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -37,7 +36,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
         binding.toolbarWorkOrder.title = "MyWorkOrder"
         setSupportActionBar(binding.toolbarWorkOrder)
-
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         viewModel = ViewModelProvider(this).get(MyWorkOrderDetailViewModel::class.java)
 
         myWorkOrderID = intent.getStringExtra(util.intentWorkOrderId)
@@ -331,6 +330,10 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
                 }
 
                 true
+            }
+            android.R.id.home -> {
+                onBackPressed() // Geri dönme işlemini yapar
+                return true
             }
             else -> super.onOptionsItemSelected(item)
         }

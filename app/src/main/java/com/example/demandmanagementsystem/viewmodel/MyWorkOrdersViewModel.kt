@@ -1,19 +1,11 @@
 package com.example.demandmanagementsystem.viewmodel
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.model.MyWorkOrders
-import com.example.demandmanagementsystem.model.Requests
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.SortListByDate
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class MyWorkOrdersViewModel: ViewModel() {
 
@@ -92,16 +84,16 @@ class MyWorkOrdersViewModel: ViewModel() {
                         }
                         .addOnFailureListener {
                             myWorkOrderLoading.value = false
-                            Log.e("Firestore", "FireStore Veri Çekme Hatası")
+                            Log.e("MyWorkOrdersViewModel", "fetchData => FireStore Veri Çekme Hatası")
                         }
                 } else {
                     myWorkOrderLoading.value = false
-                    Log.d("Firestore", "Kullanıcı bulunamadı")
+                    Log.d("MyWorkOrdersViewModel", "fetchData => Kullanıcı bulunamadı")
                 }
             }
             .addOnFailureListener { exception ->
                 myWorkOrderLoading.value = false
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
+                Log.e("MyWorkOrdersViewModel", "fetchData => Veri çekme hatası: ", exception)
             }
     }
     fun filterList(selectedFilter: String) {
@@ -145,12 +137,12 @@ class MyWorkOrdersViewModel: ViewModel() {
                     _authorityType.value = authorityType
                 } else {
                     myWorkOrderLoading.value = false
-                    Log.d("Firestore", "Kullanıcı bulunamadı")
+                    Log.d("MyWorkOrdersViewModel", "getData => Kullanıcı bulunamadı")
                 }
             }
             .addOnFailureListener { exception ->
                 myWorkOrderLoading.value = false
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
+                Log.e("MyWorkOrdersViewModel", "getData => Veri çekme hatası: ", exception)
             }
 
     }

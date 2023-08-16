@@ -4,12 +4,10 @@ package com.example.demandmanagementsystem.view
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -36,15 +34,13 @@ class RequestDetailActivity : AppCompatActivity() {
 
         binding.toolbarRequest.title = "Detail"
         setSupportActionBar(binding.toolbarRequest)
-
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         viewModel.requestData.observe(this) { requestData ->
             binding.selectedRequest = requestData
         }
 
         requestID = intent.getStringExtra(util.intentRequestId)
         viewModel.getData(requestID!!)
-
-
 
         viewModel.requestDepartmentData.observe(this@RequestDetailActivity) { requestDepartmant ->
             if (requestDepartmant != null) {
@@ -62,22 +58,11 @@ class RequestDetailActivity : AppCompatActivity() {
 
         viewModel.getAuthorityType { authorityType ->
 
-
-
-            Log.e("getAuthorityType", "getAuthorityType $userDepartmentType")
-            Log.e("getAuthorityType", "getAuthorityType $userDepartmentType")
-
-
             if (authorityType == "Departman Çalışanı") {
                 binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
                 binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
-                // -> burada düzenleme yapılacak
-
                 viewModel.requestCaseData.observe(this) { requestCase ->
-                    Log.e("getAuthorityType", "requestCaseData $userDepartmentType")
-                    Log.e("getAuthorityType", "requestCaseData $userDepartmentType")
-                    Log.e("getAuthorityType", "requestCaseData $requestCase")
 
                     if (requestCase == util.waitingForApproval) {
                         // burada department çalışanı olarak ayar yapılacak gibi
@@ -99,9 +84,6 @@ class RequestDetailActivity : AppCompatActivity() {
 
             }else if((authorityType == util.generalManager) || (authorityType == util.departmentManager) || (authorityType == util.departmentChief)){
                 viewModel.requestCaseData.observe(this) { requestCase ->
-                    Log.e("getAuthorityType", " - requestCaseData $userDepartmentType")
-                    Log.e("getAuthorityType", " - requestCaseData $userDepartmentType")
-                    Log.e("getAuthorityType", " - requestCaseData $requestCase")
 
                     if ((requestCase == util.assignedToPerson) ) {
                         binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
@@ -109,8 +91,6 @@ class RequestDetailActivity : AppCompatActivity() {
 
                     } else if (requestCase == util.waitingForApproval) {
 
-                        Log.e("RequestDetailActivity", "getMenuItem $userDepartmentType")
-                        Log.e("RequestDetailActivity", "getMenuItem $userDepartmentType")
                         if (userDepartmentType == requestDepartmentType ){
                             binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
                             binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).title = util.menuTitleWorkCompleted
@@ -133,9 +113,6 @@ class RequestDetailActivity : AppCompatActivity() {
 
                     }else if (requestCase == util.newRequest) {
 
-                        Log.e("getAuthorityType", " - newRequest"  + " " +  userDepartmentType)
-                        Log.e("getAuthorityType", " - newRequest" + " " +  requestDepartmentType)
-                        Log.e("getAuthorityType", " - newRequest" + " " + requestCase)
                         if(userDepartmentType == requestDepartmentType){
 
                             binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = true
@@ -188,22 +165,17 @@ class RequestDetailActivity : AppCompatActivity() {
 
     }
 
-
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.reject -> {
                     val title = binding.toolbarRequest.menu.findItem(R.id.reject).title.toString()
 
                     if(title == util.menuTitleDenied){
-                        // talebi reddet
 
                         val design = layoutInflater.inflate(R.layout.alert_tasarim,null)
                         val editTextAlert = design.findViewById(R.id.editTextAlert) as EditText
 
                         val ad = AlertDialog.Builder(this@RequestDetailActivity)
-
-
 
                         ad.setTitle("Emin Misiniz")
                         ad.setView(design)
@@ -211,7 +183,6 @@ class RequestDetailActivity : AppCompatActivity() {
 
                             val dataReceived = editTextAlert.text.toString()
                             viewModel.requestDenied(requestID!!,this@RequestDetailActivity,dataReceived)
-                            Toast.makeText(applicationContext,"Talep Reddedildi", Toast.LENGTH_SHORT).show()
 
                             val intent = Intent(this@RequestDetailActivity, DemandListActivity::class.java)
                             finish()
@@ -221,11 +192,6 @@ class RequestDetailActivity : AppCompatActivity() {
                         ad.setNegativeButton("İptal"){ dialogInterface, i ->
                         }
                         ad.create().show()
-
-
-
-
-
 
                     }else if(title == util.menuTitleWorkDenied){
                         viewModel.workDenied(requestID!!,this@RequestDetailActivity)
@@ -251,10 +217,12 @@ class RequestDetailActivity : AppCompatActivity() {
                     intent.putExtra(util.intentRequestId, requestID)
                     intent.putExtra(util.intentRequestDetail, 1)
                     startActivity(intent)
-
                 }
-
                 true
+            }
+            android.R.id.home -> {
+                onBackPressed()
+                return true
             }
             else -> super.onOptionsItemSelected(item)
         }

@@ -34,7 +34,7 @@ class AddPersonViewModel : ViewModel() {
             }
             .addOnFailureListener { exception ->
                 departmentTypeList.postValue(null)
-                Log.e("AddPersonViewModel", "FireStore Veri Çekme Hatası: $exception")
+                Log.e("AddPersonViewModel", "fetchDepartmentTypes => FireStore Veri Çekme Hatası: $exception")
             }
     }
 
@@ -51,7 +51,7 @@ class AddPersonViewModel : ViewModel() {
             }
             .addOnFailureListener { exception ->
                 typeOfStaffList.postValue(null)
-                Log.e("AddPersonViewModel", "FireStore Veri Çekme Hatası: $exception")
+                Log.e("AddPersonViewModel", "fetchTypeOfStaffList => FireStore Veri Çekme Hatası: $exception")
             }
     }
 
@@ -86,10 +86,14 @@ class AddPersonViewModel : ViewModel() {
                                context,
                                "Kullanıcı Eklendi",Toast.LENGTH_SHORT
                            ).show()
-                            Log.d("AddPersonViewModel", "Firestore'a kayıt başarıyla eklendi.")
+                            Log.d("AddPersonViewModel", "addUser => Firestore'a kayıt başarıyla eklendi.")
                         }
                         .addOnFailureListener { e ->
-                            Log.e("AddPersonViewModel", "Firestore'a kayıt ekleme hatası: $e")
+                            Toast.makeText(
+                                context,
+                                "Hata!! Kullanıcı Eklenmedi",Toast.LENGTH_SHORT
+                            ).show()
+                            Log.e("AddPersonViewModel", "addUser => Firestore'a kayıt ekleme hatası: $e")
                         }
                 }
             }
@@ -119,13 +123,13 @@ class AddPersonViewModel : ViewModel() {
                       }
 
                   }.addOnFailureListener { exception ->
-                      Log.e("AddPersonViewModel","${exception.localizedMessage}")
+                      Log.e("AddPersonViewModel","getUser => ${exception.localizedMessage}")
                   }
               }
 
 
           }.addOnFailureListener {
-              Log.e("AddPersonViewModel","${it.localizedMessage}")
+              Log.e("AddPersonViewModel","getUser => ${it.localizedMessage}")
           }
 
     }

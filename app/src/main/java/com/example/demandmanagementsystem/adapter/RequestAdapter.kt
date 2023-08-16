@@ -43,7 +43,7 @@ class RequestAdapter(private val context:Context,
         holder.view.request = requestList[position]
         holder.view.objectCardView.setOnClickListener {
             val intent = Intent(context, RequestDetailActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK // Yeni görev olarak başlatma bayrağı
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             intent.putExtra(util.intentRequestId, requestList[position].requestID)
             context.startActivity(intent)
         }

@@ -41,7 +41,7 @@ class RequestDetailViewModel: ViewModel(){
                 .get()
                 .addOnSuccessListener { documentSnapshot ->
                     val authorityType = documentSnapshot.getString("authorityType")
-                    val departmentType = documentSnapshot.getString("deparmentType") // Düzeltme: "deparmentType" -> "departmentType"
+                    val departmentType = documentSnapshot.getString("deparmentType")
                     _userDepartmentData.value = departmentType
                     callback.invoke(authorityType)
                 }
@@ -99,7 +99,7 @@ class RequestDetailViewModel: ViewModel(){
                 _requestData.value = null
                 _requestCaseData.value = null
                 _requestDepartmentData.value = null
-                Log.e("Firestore", "Veri çekme hatası: ", exception)
+                Log.e("RequestDetailViewModel", "getData => Veri çekme hatası: ", exception)
             }
     }
 
@@ -126,7 +126,11 @@ class RequestDetailViewModel: ViewModel(){
                 ).show()
 
             }.addOnFailureListener { e ->
-                Log.e("RequestDetailViewModel", "Hata ")
+                Toast.makeText(
+                    context,
+                    "Hata! İş Tamamlanamadı", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("RequestDetailViewModel", "workCompleted => Hata ")
             }
 
         reference.workordersCollection()
@@ -142,13 +146,13 @@ class RequestDetailViewModel: ViewModel(){
                             .addOnSuccessListener {
                             }
                             .addOnFailureListener { e ->
-                            Log.e("RequestDetailViewModel", "Hata ")
+                            Log.e("RequestDetailViewModel", "workCompleted => work => Hata ")
                         }
                         break
                     }
                 }
             } .addOnFailureListener { e ->
-                Log.e("RequestDetailViewModel", "Hata ")
+                Log.e("RequestDetailViewModel", "workCompleted => workorder => Hata ")
             }
 
     }
@@ -171,7 +175,11 @@ class RequestDetailViewModel: ViewModel(){
                 ).show()
 
             }.addOnFailureListener { e ->
-                Log.e("RequestDetailViewModel", "Hata ")
+                Toast.makeText(
+                    context,
+                    "Hata! Talep Reddedilemedi", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("RequestDetailViewModel", "requestDenied => Hata ")
             }
 
     }
@@ -197,7 +205,11 @@ class RequestDetailViewModel: ViewModel(){
                 ).show()
 
             }.addOnFailureListener { e ->
-                Log.e("RequestDetailViewModel", "Hata ")
+                Toast.makeText(
+                    context,
+                    "Hata! İş Reddedilemedi", Toast.LENGTH_SHORT
+                ).show()
+                Log.e("RequestDetailViewModel", "workDenied => Hata ")
             }
 
         reference.workordersCollection()
@@ -212,13 +224,13 @@ class RequestDetailViewModel: ViewModel(){
                             .addOnSuccessListener {
                             }
                             .addOnFailureListener { e ->
-                                Log.e("RequestDetailViewModel", "Hata ")
+                                Log.e("RequestDetailViewModel", "workDenied => work => Hata ")
                             }
                         break
                     }
                 }
             } .addOnFailureListener { e ->
-                Log.e("RequestDetailViewModel", "Hata ")
+                Log.e("RequestDetailViewModel", "workDenied => workOrder => Hata ")
             }
 
 
