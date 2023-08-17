@@ -12,6 +12,12 @@ import com.example.demandmanagementsystem.util.SortListByDate
 
 class CreatedRequestsViewModel(application: Application) : AndroidViewModel(application) {
 
+
+    init {
+
+        setupSnapshotListener()
+    }
+
     private val reference = FirebaseServiceReference()
     private val sort = SortListByDate()
 
@@ -37,7 +43,25 @@ class CreatedRequestsViewModel(application: Application) : AndroidViewModel(appl
     val authorityType: MutableLiveData<String?>
         get() = _authorityType
 
+    private fun setupSnapshotListener() {
 
+        val reference = FirebaseServiceReference()
+
+        reference
+            .requestsCollection()
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("DemandListViewModel", "SnapshotListener error", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    fetchData()
+                    getData()
+                }
+            }
+
+    }
 
     fun fetchData() {
         val userId = sharedPreferences.getString("userId",null)

@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
             val email=binding.textUserName.text.toString()
             val password=binding.textPassword.text.toString()
 
-            if(email.isNotEmpty() || password.isNotEmpty()) {
+            if(email.isNotEmpty() && password.isNotEmpty()) {
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
 

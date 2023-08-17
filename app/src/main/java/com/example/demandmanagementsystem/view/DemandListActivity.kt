@@ -67,7 +67,7 @@ class DemandListActivity : AppCompatActivity()
         binding.drawer.addDrawerListener(toggle)
         toggle.syncState()
 
-        viewModel = ViewModelProvider(this).get(DemandListViewModel::class.java)
+        viewModel = ViewModelProvider(this@DemandListActivity).get(DemandListViewModel::class.java)
 
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             val itemId = menuItem.itemId

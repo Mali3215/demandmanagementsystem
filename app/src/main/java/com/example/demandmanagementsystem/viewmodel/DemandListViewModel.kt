@@ -19,7 +19,10 @@ import com.example.demandmanagementsystem.view.MainActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
 
 class DemandListViewModel(application: Application) : AndroidViewModel(application) {
+    init {
 
+        setupSnapshotListener()
+    }
     val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
@@ -46,6 +49,26 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
 
     private  var requestListTemp: ArrayList<Requests>? = null
 
+    private fun setupSnapshotListener() {
+
+        val reference = FirebaseServiceReference()
+
+            reference
+                .requestsCollection()
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.e("DemandListViewModel", "SnapshotListener error", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+                        fetchData()
+                        getData()
+                    }
+                }
+
+    }
+
     fun fetchData() {
 
         val userId = sharedPreferences.getString("userId","")
@@ -55,7 +78,8 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
         if (userId != null) {
 
 
-            reference.requestsCollection()
+            reference
+                .requestsCollection()
                 .get()
                 .addOnSuccessListener { documentsnapshot ->
                     var requestsList = ArrayList<Requests>()
