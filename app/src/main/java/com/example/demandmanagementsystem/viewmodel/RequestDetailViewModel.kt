@@ -1,9 +1,11 @@
 package com.example.demandmanagementsystem.viewmodel
 
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,27 +13,22 @@ import com.example.demandmanagementsystem.model.RequestData
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.RequestUtil
 
-class RequestDetailViewModel: ViewModel(){
+class RequestDetailViewModel(application: Application) : AndroidViewModel(application){
+
+    val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
 
     private val _requestData = MutableLiveData<RequestData?>()
     val requestData: LiveData<RequestData?> get() = _requestData
 
-    private val _requestCaseData = MutableLiveData<String?>()
-    val requestCaseData: LiveData<String?>
-        get() = _requestCaseData
-
     private val _requestDepartmentData = MutableLiveData<String?>()
     val requestDepartmentData: LiveData<String?>
         get() = _requestDepartmentData
 
-    private val _userDepartmentData = MutableLiveData<String?>()
-    val userDepartmentData: LiveData<String?>
-        get() = _userDepartmentData
 
     val util = RequestUtil()
-
+    /*
     fun getAuthorityType(callback: (String?) -> Unit) {
         val user = reference.getFirebaseAuth().currentUser
         val userId = user?.uid
@@ -51,7 +48,7 @@ class RequestDetailViewModel: ViewModel(){
         } else {
             callback.invoke(null)
         }
-    }
+    }*/
 
     fun getData(requestID: String) {
         reference.requestsCollection().document(requestID)
@@ -71,8 +68,6 @@ class RequestDetailViewModel: ViewModel(){
                     val requestWorkOrderUserSubject = documentSnapshot.getString("workOrderUserSubject")
                     val requestDenied = documentSnapshot.getString("requestDenied")
 
-                    _requestCaseData.value = requestDetailCase
-
                     _requestData.value = RequestData(
                         requestDetailId,
                         requestDetailName,
@@ -88,16 +83,12 @@ class RequestDetailViewModel: ViewModel(){
                         requestDenied
                     )
 
-                    _requestDepartmentData.value = _requestData.value!!.requestSendDepartment
+
                 } else {
-                    _requestCaseData.value = null
-                    _requestDepartmentData.value = null
                     _requestData.value = null
                 }
             }
             .addOnFailureListener { exception ->
-                _requestData.value = null
-                _requestCaseData.value = null
                 _requestDepartmentData.value = null
                 Log.e("RequestDetailViewModel", "getData => Veri çekme hatası: ", exception)
             }

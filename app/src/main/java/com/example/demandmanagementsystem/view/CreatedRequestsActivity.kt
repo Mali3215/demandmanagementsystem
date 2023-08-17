@@ -46,6 +46,7 @@ class CreatedRequestsActivity : AppCompatActivity()
 
         viewModel = ViewModelProvider(this).get(CreatedRequestsViewModel::class.java)
         viewModelDemand = ViewModelProvider(this).get(DemandListViewModel::class.java)
+
         binding.swipeRefreshLayout.setOnRefreshListener {
             binding.spinnerCreatedRequestsFilter.setSelection(0)
             viewModel.fetchData()

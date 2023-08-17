@@ -1,16 +1,21 @@
 package com.example.demandmanagementsystem.viewmodel
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.model.MyWorkOrders
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.SortListByDate
 
-class CreatedWorkOrderViewModel: ViewModel() {
+class CreatedWorkOrderViewModel(application: Application) : AndroidViewModel(application) {
 
     private val reference = FirebaseServiceReference()
     private val sort = SortListByDate()
+
+    val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val createdWorkOrdersList: MutableLiveData<List<MyWorkOrders>> = MutableLiveData()
     private val createdWorkOrderFilterList: MutableLiveData<List<MyWorkOrders>> = MutableLiveData()
@@ -37,78 +42,70 @@ class CreatedWorkOrderViewModel: ViewModel() {
 
     fun fetchData() {
 
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user!!.uid
+
+        val userId = sharedPreferences.getString("userId","")
 
         createdWorkOrderLoading.value = true
 
-        reference
-            .usersCollection()
-            .document(userId)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()){
+        if (userId != null) {
+            reference
+                .workordersCollection()
+                .get()
+                .addOnSuccessListener { docSnapshot ->
+                    var createdWorkOrderList = ArrayList<MyWorkOrders>()
 
-                    reference
-                        .workordersCollection()
-                        .get()
-                        .addOnSuccessListener { docSnapshot ->
-                            var createdWorkOrderList = ArrayList<MyWorkOrders>()
+                    for (doc in docSnapshot.documents){
 
-                            for (doc in docSnapshot.documents){
+                        val workOrder = MyWorkOrders(
+                            doc.id,
+                            doc.getString("workOrderAssetInformation").toString(),
+                            doc.getString("workOrderDate").toString(),
+                            doc.getString("workOrderDepartment").toString(),
+                            doc.getString("workOrderDescription").toString(),
+                            doc.getString("workOrderPersonToDoJob").toString(),
+                            doc.getString("workOrderRequestDescription").toString(),
+                            doc.getString("workOrderRequestId").toString(),
+                            doc.getString("workOrderRequestSubject").toString(),
+                            doc.getString("workOrderSubject").toString(),
+                            doc.getString("workOrdercreateUserName").toString(),
+                            doc.getString("workOrderCase").toString(),
+                            doc.getString("selectedWorkOrderUserId").toString(),
+                            doc.getString("workOrderRequestType").toString(),
+                            doc.getString("workOrderSubDescription").toString(),
+                            doc.getString("workOrderUserSubject").toString(),
+                            doc.getString("createWorkOrderId").toString(),
+                            doc.getString("workOrderType").toString()
+                        )
 
-                                val workOrder = MyWorkOrders(
-                                    doc.id,
-                                    doc.getString("workOrderAssetInformation").toString(),
-                                    doc.getString("workOrderDate").toString(),
-                                    doc.getString("workOrderDepartment").toString(),
-                                    doc.getString("workOrderDescription").toString(),
-                                    doc.getString("workOrderPersonToDoJob").toString(),
-                                    doc.getString("workOrderRequestDescription").toString(),
-                                    doc.getString("workOrderRequestId").toString(),
-                                    doc.getString("workOrderRequestSubject").toString(),
-                                    doc.getString("workOrderSubject").toString(),
-                                    doc.getString("workOrdercreateUserName").toString(),
-                                    doc.getString("workOrderCase").toString(),
-                                    doc.getString("selectedWorkOrderUserId").toString(),
-                                    doc.getString("workOrderRequestType").toString(),
-                                    doc.getString("workOrderSubDescription").toString(),
-                                    doc.getString("workOrderUserSubject").toString(),
-                                    doc.getString("createWorkOrderId").toString(),
-                                    doc.getString("workOrderType".toString())
-                                )
-
-                                if (workOrder.createWorkOrderId == userId){
-                                    createdWorkOrderList.add(workOrder)
-                                }
-
-
-
-                            }
-                            createdWorkOrdersListTemp = createdWorkOrderList
-
-                            val sortedList = sort.sortWorkOrderListByDate(createdWorkOrderList)
-
-                            createdWorkOrdersList.value = sortedList
-                            createdWorkOrderLoading.value = false
-                        }.addOnFailureListener {
-                            createdWorkOrderLoading.value = false
-                            Log.e("CreatedWorkOrderViewModel", "fetchData => FireStore Veri Çekme Hatası")
+                        if (workOrder.createWorkOrderId == userId){
+                            createdWorkOrderList.add(workOrder)
                         }
 
-                } else {
+
+
+                    }
+                    createdWorkOrdersListTemp = createdWorkOrderList
+
+                    val sortedList = sort.sortWorkOrderListByDate(createdWorkOrderList)
+
+                    createdWorkOrdersList.value = sortedList
                     createdWorkOrderLoading.value = false
-                    Log.d("CreatedWorkOrderViewModel", "fetchData => Kullanıcı bulunamadı")
+                }.addOnFailureListener {
+                    createdWorkOrderLoading.value = false
+                    Log.e("CreatedWorkOrderViewModel", "fetchData => FireStore Veri Çekme Hatası")
                 }
-            } .addOnFailureListener { exception ->
-                createdWorkOrderLoading.value = false
-                Log.e("CreatedWorkOrderViewModel", "fetchData => Veri çekme hatası: ", exception)
-            }
+
+        }
 
 
     }
+    fun getData(){
+        _username.value = sharedPreferences.getString("name","")
+        _departmentType.value =  sharedPreferences.getString("departmentType","")
+        _authorityType.value =  sharedPreferences.getString("authorityType","")
+    }
 
-
+/*
     fun getData(){
         val user = reference.getFirebaseAuth().currentUser
         val userId = user!!.uid
@@ -135,7 +132,7 @@ class CreatedWorkOrderViewModel: ViewModel() {
                 Log.e("CreatedWorkOrderViewModel", "getData => Veri çekme hatası: ", exception)
             }
     }
-
+*/
     fun filterList(selectedFilter: String){
         if (createdWorkOrdersListTemp == null){
             return

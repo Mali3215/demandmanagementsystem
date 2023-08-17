@@ -1,10 +1,12 @@
 package com.example.demandmanagementsystem.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,10 +20,10 @@ import com.example.demandmanagementsystem.view.MyWorkOrderDetailActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
 
 
-class MyWorkOrderDetailViewModel: ViewModel() {
+class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(application) {
 
     private val reference = FirebaseServiceReference()
-
+    val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
     private val _workOrderData = MutableLiveData<MyWorkOrders?>()
     val workOrderData: LiveData<MyWorkOrders?> get() = _workOrderData
     private val _workOrderUserSubject = MutableLiveData<String>()
@@ -40,8 +42,7 @@ class MyWorkOrderDetailViewModel: ViewModel() {
         get() = _userId
 
     fun getAuthorityType(callback: (String?) -> (Unit)) {
-        val user = reference.getFirebaseAuth().currentUser
-        val currentUserId = user?.uid
+        val currentUserId = sharedPreferences.getString("userId","")
 
         callback.invoke(currentUserId)
     }

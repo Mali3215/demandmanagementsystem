@@ -1,234 +1,346 @@
 package com.example.demandmanagementsystem.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.databinding.ActivityCreateWorkOrderBinding
+import com.example.demandmanagementsystem.model.JobDetails
+import com.example.demandmanagementsystem.model.MyWorkOrders
 import com.example.demandmanagementsystem.model.User
+import com.example.demandmanagementsystem.service.FirebaseServiceReference
+import com.example.demandmanagementsystem.util.CurrentDateTime
 import com.example.demandmanagementsystem.util.WorkOrderUtil
 import com.example.demandmanagementsystem.view.DemandListActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
-class CreateWorkOrderViewModel : ViewModel() {
+class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(application){
 
-    private val unit = WorkOrderUtil()
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-    private val _username = MutableLiveData<String?>()
-    val username: MutableLiveData<String?>
-        get() = _username
+    private val util = WorkOrderUtil()
+    private val currentDateTime = CurrentDateTime()
+    private val reference = FirebaseServiceReference()
+    val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+    private lateinit var arrayRequestInfo: ArrayList<String>
 
-    private val _departmentType = MutableLiveData<String?>()
-    val departmentType: MutableLiveData<String?>
-        get() = _departmentType
+    private var spinnerDataList = ArrayList<String>()
+    private val departmentUsersList = ArrayList<User>()
 
-    private val _requestSubject = MutableLiveData<String?>()
-    val requestSubject: MutableLiveData<String?>
-        get() = _requestSubject
-
-    private val _requestDescription = MutableLiveData<String?>()
-    val requestDescription: MutableLiveData<String?>
-        get() = _requestDescription
-
-    private val _selectedUser = MutableLiveData<User?>()
-    val selectedUser: MutableLiveData<User?>
-        get() = _selectedUser
-
-    private val _userNameList = MutableLiveData<List<String>>()
-    val userNameList: LiveData<List<String>>
-        get() = _userNameList
-
-    private val _selectedUserId = MutableLiveData<String>()
-    val selectedUserId: LiveData<String>
-        get() = _selectedUserId
-
-    private val _departmentUsersList = MutableLiveData<List<User>>()
-    val departmentUsersList: LiveData<List<User>>
-        get() = _departmentUsersList
-
-
-    fun loadRequestData(requestID: String) {
-        val requestCollectionRef = firestore.collection("requests")
-        requestCollectionRef.document(requestID)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val workOrderRequestSubject = documentSnapshot.getString("requestSubject")
-                    val workOrderRequestDescription = documentSnapshot.getString("requestDescription")
-                    _requestSubject.value = workOrderRequestSubject
-                    _requestDescription.value = workOrderRequestDescription
-                } else {
-                    _requestSubject.value = "Talep bulunamadı"
-                    _requestDescription.value = ""
+    suspend fun getJobDetails(): ArrayList<JobDetails> {
+        return suspendCoroutine { continuation ->
+           reference
+               .jobDetailsCollection()
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val tempList = ArrayList<JobDetails>()
+                    for (document in documentSnapshot) {
+                        val jobDetails = JobDetails(
+                            document.id,
+                            document.getString("jobType").toString(),
+                            document.getString("departmentType").toString(),
+                            document.get("businessSubtype") as? List<String>
+                        )
+                        tempList.add(jobDetails)
+                    }
+                    continuation.resume(tempList)
                 }
-            }
-            .addOnFailureListener { exception ->
-                _requestSubject.value = "Veri çekme hatası"
-                _requestDescription.value = ""
-            }
-    }
-
-    fun loadUserData() {
-        val usersCollectionRef = firestore.collection("users")
-        val user = auth.currentUser
-        val userId = user!!.uid
-
-        usersCollectionRef.document(userId)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val username = documentSnapshot.getString("name")
-                    val departmentType = documentSnapshot.getString("deparmentType")
-                    _username.value = username
-                    _departmentType.value = departmentType
-                } else {
-                    _username.value = "Kullanıcı bulunamadı"
-                    _departmentType.value = ""
+                .addOnFailureListener {
+                    Log.e("CreateWorkOrderActivity", "getJobDetails => fonksiyonunda hata")
+                    continuation.resumeWithException(it)
                 }
-            }
-            .addOnFailureListener { exception ->
-                _username.value = "Veri çekme hatası"
-                _departmentType.value = ""
-            }
+        }
     }
+    fun  loadingData(requestID: String, binding: ActivityCreateWorkOrderBinding){
 
+        arrayRequestInfo = ArrayList()
+        spinnerDataList = ArrayList()
 
+        val requestCollectionRef = reference.requestsCollection()
 
-    fun getUsersDataSpinner() {
-        val usersTypeCollectionRef = FirebaseFirestore.getInstance().collection("users")
-        val user = FirebaseAuth.getInstance().currentUser
-        val userId = user!!.uid
+        val textWorkOrderRequestId = binding.textWorkOrderRequestId
+        val textWorkOrderRequestSubject = binding.textWorkOrderRequestSubject
+        val textWorkOrderRequestDescription = binding.textWorkOrderRequestDescription
+        val textWorkOrderRequestType = binding.textWorkOrderRequestType
 
-        usersTypeCollectionRef.document(userId).get()
-            .addOnSuccessListener { documentSnapshot ->
-                val userDepartmentType = documentSnapshot.getString("deparmentType").toString()
+        if(requestID != ""){
+            textWorkOrderRequestId.setText(requestID)  // talep ID
 
-                usersTypeCollectionRef.get()
-                    .addOnSuccessListener { documentsnapshot ->
-                        val departmentUsersList = mutableListOf<User>()
-                        for (document in documentsnapshot.documents) {
-                            val departmentType = document.getString("deparmentType").toString()
+            requestCollectionRef.document(requestID)
+                .get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val documentSnapshot = task.result
+                        val workOrderRequestSendDepartmen = documentSnapshot.getString("requestSendDepartment")
+                        val workOrderRequestType = documentSnapshot.getString("requestType")
+                        val workOrderRequestSubject = documentSnapshot.getString("requestSubject")
+                        val workOrderRequestDescription = documentSnapshot.getString("requestDescription")
 
-                            if ((document.id != userId) && (departmentType == userDepartmentType)) {
-                                val user = User(document.getString("name").toString(), document.id)
-                                departmentUsersList.add(user)
+                        if ((workOrderRequestType != null) && (workOrderRequestSendDepartmen != null)) {
+                            arrayRequestInfo.add(workOrderRequestType)
+                            arrayRequestInfo.add(workOrderRequestSendDepartmen)
+
+                            getDataSpinnerRequest { list ->
+
+                                spinnerDataList = list
                             }
-                        }
-                        _userNameList.value = departmentUsersList.map { it.userName }
-                        if (departmentUsersList.isNotEmpty()) {
-                            _selectedUserId.value = departmentUsersList[0].userId
-                            _selectedUser.value = departmentUsersList[0] // Seçili kullanıcıyı güncelle
-                        }
 
-                        _departmentUsersList.value = departmentUsersList
+                        }
+                        textWorkOrderRequestSubject.setText(workOrderRequestSubject)
+                        textWorkOrderRequestDescription.setText(workOrderRequestDescription)
+                        textWorkOrderRequestType.setText(workOrderRequestType)
+
+                    } else {
+
+                        Log.d("CreateWorkOrderActivity", "loadingData => Talep bulunamadı")
                     }
-                    .addOnFailureListener {
-                        Log.e("CreateWorkOrderViewModel", "FireStore Veri Çekme Hatası")
+                }
+                .addOnFailureListener { exception ->
+
+                    Log.e("CreateWorkOrderActivity", "loadingData => Veri çekme hatası: ", exception)
+                }
+        }
+
+        val name = binding.textWorkOrderPersonToDoJob
+        val department = binding.textWorkOrderDepartment
+
+        name.setText(sharedPreferences.getString("name",""))
+        department.setText(sharedPreferences.getString("departmentType",""))
+
+    }
+
+    fun getDataSpinnerRequest(completion: (ArrayList<String>) -> Unit) {
+        val resultList =ArrayList<String>()
+        reference
+            .jobDetailsCollection()
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+
+                resultList.add("Seçiniz")
+                for (document in documentSnapshot) {
+                    val jobDetails = JobDetails(
+                        document.id,
+                        document.getString("jobType").toString(),
+                        document.getString("departmentType").toString(),
+                        document.get("businessSubtype") as? ArrayList<String>
+                    )
+
+                    if ((jobDetails.departmentType == arrayRequestInfo[1]) &&
+                        (jobDetails.jobType == arrayRequestInfo[0])) {
+
+                        val list = jobDetails.businessSubtype
+                        resultList.addAll(list ?: emptyList())
                     }
+                }
+
+                completion(resultList)
             }
             .addOnFailureListener {
-                Log.e("CreateWorkOrderViewModel", "FireStore Veri Çekme Hatası")
+                Log.e("CreateWorkOrderActivity", "getDataSpinnerRequest => getDataSpinnerRequest")
+                completion(resultList)
             }
     }
+    /*
+      arrayRequestInfo.add(workOrderRequestType)
+         arrayRequestInfo.add(workOrderRequestSendDepartmen)
+                    */
 
-    // Bu metodu kullanıcıyı id'sine göre bulmak için kullanacağız
-    fun getUserById(userId: String): User? {
-        return departmentUsersList.value?.firstOrNull { it.userId == userId }
+    fun getUsersDataSpinner(callback: (List<User>) -> Unit) {
+        val userDepartmentType = sharedPreferences.getString("departmentType","")
+        val userId = sharedPreferences.getString("userId","")
+        reference
+            .usersCollection()
+            .get()
+            .addOnSuccessListener { documentsnapshot ->
+                departmentUsersList.clear()
+                departmentUsersList.add(0,User("Seçiniz","0"))
+                for (document in documentsnapshot.documents) {
+                    val departmentType = document.getString("deparmentType").toString()
+                    if ((document.id != userId) && (departmentType == userDepartmentType)) {
+                        val user = User(document.getString("name").toString(), document.id)
+                        departmentUsersList.add(user)
+                    }
+                }
+                callback.invoke(departmentUsersList)
+            }
+            .addOnFailureListener {
+                Log.e("CreateWorkOrderActivity", "getUsersDataSpinner => FireStore Veri Çekme Hatası")
+                callback.invoke(emptyList())
+            }
+
     }
 
-    // Kullanıcıyı seçtiğimizde çağrılacak metot
-    fun setSelectedUser(userId: String?) {
-        val user = getUserById(userId.orEmpty())
-        _selectedUser.value = user
-    }
+    fun requestCreateWorkOrder(context: Context,binding: ActivityCreateWorkOrderBinding,selectedUserId: String){
+
+        val selectedWorkOrderUserId = selectedUserId
+        val workOrderRequestId = binding.textWorkOrderRequestId.text.toString()
+        val workOrderPersonToDoJob = binding.textWorkOrderPersonToDoJob.text.toString()
+        val workOrdercreateUserName = binding.textWorkOrderCreateUserName.text.toString()
+        val workOrderDepartment = binding.textWorkOrderDepartment.text.toString()
+        val workOrderRequestSubject = binding.textWorkOrderRequestSubject.text.toString()
+        val workOrderRequestDescription = binding.textWorkOrderRequestDescription.text.toString()
+        val workOrderSubject = binding.textWorkOrderSubject.text.toString()
+        val workOrderDescription = binding.textWorkOrderDescription.text.toString()
+        val workOrderAssetInformation = binding.textWorkOrderAssetInformation.text.toString()
+        val workOrderCase = util.assignedToPerson
+        val workOrderDate = currentDateTime.getCurrentDateTime()
+        val workOrderRequestType =binding.textWorkOrderRequestType.text.toString()
+        val workOrderType = binding.textWorkOrderType.text.toString()
+        val createWorkOrderId = sharedPreferences.getString("userId",null)
 
 
-    fun wordOrderCreate(context: Context,binding: ActivityCreateWorkOrderBinding
-                        ,selectedUserId: String?){
+
+        val workOrder = hashMapOf(
+            "workOrderRequestId" to workOrderRequestId,
+            "workOrderPersonToDoJob" to workOrderPersonToDoJob,
+            "workOrdercreateUserName" to workOrdercreateUserName,
+            "workOrderDepartment" to workOrderDepartment,
+            "workOrderRequestSubject" to workOrderRequestSubject,
+            "workOrderRequestDescription" to workOrderRequestDescription,
+            "workOrderSubject" to workOrderSubject,
+            "workOrderDescription" to workOrderDescription,
+            "workOrderAssetInformation" to workOrderAssetInformation,
+            "workOrderDate" to workOrderDate,
+            "selectedWorkOrderUserId" to selectedWorkOrderUserId,
+            "workOrderCase" to workOrderCase,
+            "workOrderRequestType" to workOrderRequestType,
+            "workOrderType" to workOrderType,
+            "createWorkOrderId" to createWorkOrderId
+        )
+
+        reference
+            .workordersCollection()
+            .document()
+            .set(workOrder)
+            .addOnSuccessListener {
+                Log.d("CreateWorkOrderActivity", "onOptionsItemSelected => Firestore'a iş emri başarıyla eklendi.")
+                Toast.makeText(context,"İş Emri Gönderildi", Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(context, DemandListActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
 
 
-            val calendar = Calendar.getInstance()
-
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH) + 1 // Ay 0 ile başlar, bu yüzden 1 ekliyoruz
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
+            }
+            .addOnFailureListener {
+                Toast.makeText(context,"Hata! İş Emri Gönderilemedi", Toast.LENGTH_SHORT).show()
+                Log.e("CreateWorkOrderActivity","")
+            }
 
 
-            val workordersCollectionRef = firestore.collection("workorders")
-            val selectedWorkOrderUserId = selectedUserId
-            val workOrderRequestId = binding.textWorkOrderRequestId.text.toString()
-            val workOrderPersonToDoJob = binding.textWorkOrderPersonToDoJob.text.toString()
-            val workOrdercreateUserName = binding.textWorkOrderCreateUserName.text.toString()
-            val workOrderDepartment = binding.textWorkOrderDepartment.text.toString()
-            val workOrderRequestSubject = binding.textWorkOrderRequestSubject.text.toString()
-            val workOrderRequestDescription = binding.textWorkOrderRequestDescription.text.toString()
-            val workOrderSubject = binding.textWorkOrderSubject.text.toString()
-            val workOrderDescription = binding.textWorkOrderDescription.text.toString()
-            val workOrderAssetInformation = binding.textWorkOrderAssetInformation.text.toString()
-            val workOrderCase = unit.assignedToPerson
-            val workOrderDate = "$hour:$minute-$day/$month/$year"
 
-            val workOrder = hashMapOf(
-                "workOrderRequestId" to workOrderRequestId,
-                "workOrderPersonToDoJob" to workOrderPersonToDoJob,
-                "workOrdercreateUserName" to workOrdercreateUserName,
-                "workOrderDepartment" to workOrderDepartment,
-                "workOrderRequestSubject" to workOrderRequestSubject,
-                "workOrderRequestDescription" to workOrderRequestDescription,
-                "workOrderSubject" to workOrderSubject,
-                "workOrderDescription" to workOrderDescription,
-                "workOrderAssetInformation" to workOrderAssetInformation,
-                "workOrderDate" to workOrderDate,
-                "selectedWorkOrderUserId" to selectedWorkOrderUserId,
-                "workOrderCase" to workOrderCase
-            )
+        val updateData = hashMapOf<String, Any>(
+            "requestCase" to "İş Yapacak Kişiye Atandı"
+        )
 
-            workordersCollectionRef
-                .document()
-                .set(workOrder)
-                .addOnSuccessListener {
-                    Log.d("CreateWorkOrderActivity", "Firestore'a iş emri başarıyla eklendi.")
-                    Toast.makeText(context,"İş Emri Gönderildi", Toast.LENGTH_SHORT).show()
-
-                    val intent = Intent(context, DemandListActivity::class.java)
-                    context.startActivity(intent)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-
-
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(context,"Hata", Toast.LENGTH_SHORT).show()
-                }
-
-            val requestCollectionRef = firestore.collection("requests")
-
-            val updateData = hashMapOf<String, Any>(
-                "requestCase" to "İş Yapacak Kişiye Atandı"
-            )
-
-            requestCollectionRef
+        if (workOrderRequestId != "") {
+            reference
+                .requestsCollection()
                 .document(workOrderRequestId)
                 .update(updateData)
                 .addOnSuccessListener {
-                    Toast.makeText(context, "Güncelleme başarılı!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "İş Yapacak Kişiye Atandı!", Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener { e ->
-
-                    Toast.makeText(context, "Hata: $e", Toast.LENGTH_SHORT).show()
+                    Log.e("CreateWorkOrderActivity","onOptionsItemSelected => requestCollectionRef")
+                    Toast.makeText(context, "Hata! İş Yapacak Kişiye Atanamadı", Toast.LENGTH_SHORT).show()
                 }
-
         }
+    }
+
+    fun createWorkOrder(context: Context,
+                        binding: ActivityCreateWorkOrderBinding,
+                        selectedUserId: String,
+                        incomingData: String){
+
+        val selectedWorkOrderUserId = selectedUserId
+        val workOrderRequestId = binding.textWorkOrderRequestId.text.toString()
+        val workOrderPersonToDoJob = binding.textWorkOrderPersonToDoJob.text.toString()
+        val workOrdercreateUserName = binding.textWorkOrderCreateUserName.text.toString()
+        val workOrderDepartment = binding.textWorkOrderDepartment.text.toString()
+        val workOrderRequestSubject = binding.textWorkOrderRequestSubject.text.toString()
+        val workOrderRequestDescription = binding.textWorkOrderRequestDescription.text.toString()
+        val workOrderSubject = binding.textWorkOrderSubject.text.toString()
+        val workOrderDescription = binding.textWorkOrderDescription.text.toString()
+        val workOrderAssetInformation = binding.textWorkOrderAssetInformation.text.toString()
+        val workOrderCase = util.assignedToPerson
+        val workOrderDate = currentDateTime.getCurrentDateTime()
+        val workOrderRequestType =binding.textWorkOrderRequestType.text.toString()
+        val workOrderType = binding.textWorkOrderType.text.toString()
+        val createWorkOrderId = sharedPreferences.getString("userId",null)
+
+        val workOrder = hashMapOf(
+            "workOrderRequestId" to workOrderRequestId,
+            "workOrderPersonToDoJob" to workOrderPersonToDoJob,
+            "workOrdercreateUserName" to workOrdercreateUserName,
+            "workOrderDepartment" to workOrderDepartment,
+            "workOrderRequestSubject" to workOrderRequestSubject,
+            "workOrderRequestDescription" to workOrderRequestDescription,
+            "workOrderSubject" to workOrderSubject,
+            "workOrderDescription" to workOrderDescription,
+            "workOrderAssetInformation" to workOrderAssetInformation,
+            "workOrderDate" to workOrderDate,
+            "selectedWorkOrderUserId" to selectedWorkOrderUserId,
+            "workOrderCase" to workOrderCase,
+            "workOrderRequestType" to workOrderRequestType,
+            "workOrderType" to workOrderType,
+            "createWorkOrderId" to createWorkOrderId
+        )
+
+        reference
+            .workordersCollection()
+            .document(incomingData)
+            .set(workOrder)
+            .addOnSuccessListener {
+                Log.d("CreateWorkOrderActivity", "onOptionsItemSelected => Firestore'a iş emri başarıyla eklendi.")
+                Toast.makeText(context,"İş Emri Gönderildi", Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(context, DemandListActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context,"Hata! İş Emri Gönderilemedi", Toast.LENGTH_SHORT).show()
+                Log.e("CreateWorkOrderActivity","onOptionsItemSelected => WorkOrderRef")
+            }
 
 
+        val updateData = hashMapOf<String, Any>(
+            "requestCase" to "İş Yapacak Kişiye Atandı"
+        )
+
+        if (workOrderRequestId != "") {
+            reference
+                .requestsCollection()
+                .document(workOrderRequestId)
+                .update(updateData)
+                .addOnSuccessListener {
+                    Toast.makeText(context, "İş Yapacak Kişiye Atandı!", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Log.e("CreateWorkOrderActivity"," onOptionsItemSelected =< reqCollec")
+                    Toast.makeText(context, "Hata: İş Yapacak Kişiye Atanamadı", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
 
+
+    fun getSpinnerDataList(): List<String> {
+        return spinnerDataList
+    }
+
+
+
+}

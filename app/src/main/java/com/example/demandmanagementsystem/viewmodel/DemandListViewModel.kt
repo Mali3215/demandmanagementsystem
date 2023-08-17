@@ -1,8 +1,10 @@
 package com.example.demandmanagementsystem.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.model.Requests
@@ -16,7 +18,9 @@ import com.example.demandmanagementsystem.view.CreatedWorkOrderActivity
 import com.example.demandmanagementsystem.view.MainActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
 
-class DemandListViewModel : ViewModel() {
+class DemandListViewModel(application: Application) : AndroidViewModel(application) {
+
+    val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
     private val sort = SortListByDate()
@@ -44,62 +48,56 @@ class DemandListViewModel : ViewModel() {
 
     fun fetchData() {
 
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user!!.uid
+        val userId = sharedPreferences.getString("userId","")
 
         requestLoading.value = true
 
-        reference.usersCollection().document(userId)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
+        if (userId != null) {
 
-                    reference.requestsCollection()
-                        .get()
-                        .addOnSuccessListener { documentsnapshot ->
-                            var requestsList = ArrayList<Requests>()
 
-                            for (document in documentsnapshot.documents) {
-                                val requests = Requests(
-                                    document.id,
-                                    document.getString("requestCase").toString(),
-                                    document.getString("requestContactNumber").toString(),
-                                    document.getString("requestDate").toString(),
-                                    document.getString("requestDepartment").toString(),
-                                    document.getString("requestDescription").toString(),
-                                    document.getString("requestName").toString(),
-                                    document.getString("requestSendDepartment").toString(),
-                                    document.getString("requestSendID").toString(),
-                                    document.getString("requestSubject").toString(),
-                                    document.getString("requestType").toString()
-                                )
+            reference.requestsCollection()
+                .get()
+                .addOnSuccessListener { documentsnapshot ->
+                    var requestsList = ArrayList<Requests>()
 
-                                if (departmentType.value == requests.requestSendDepartment) {
-                                    requestsList.add(requests)
-                                }
-                            }
-                            requestListTemp = requestsList
-                            val sortedList = sort.sortRequestsListByDate(requestsList)
+                    for (document in documentsnapshot.documents) {
+                        val requests = Requests(
+                            document.id,
+                            document.getString("requestCase").toString(),
+                            document.getString("requestContactNumber").toString(),
+                            document.getString("requestDate").toString(),
+                            document.getString("requestDepartment").toString(),
+                            document.getString("requestDescription").toString(),
+                            document.getString("requestName").toString(),
+                            document.getString("requestSendDepartment").toString(),
+                            document.getString("requestSendID").toString(),
+                            document.getString("requestSubject").toString(),
+                            document.getString("requestType").toString()
+                        )
 
-                            requestList.value = sortedList
-                            requestLoading.value = false
+                        if (departmentType.value == requests.requestSendDepartment) {
+                            requestsList.add(requests)
                         }
-                        .addOnFailureListener {
-                            requestLoading.value = false
-                            Log.e("DemandListViewModel", "fetchData => FireStore Veri Çekme Hatası")
-                        }
-                } else {
+                    }
+                    requestListTemp = requestsList
+                    val sortedList = sort.sortRequestsListByDate(requestsList)
+
+                    requestList.value = sortedList
                     requestLoading.value = false
-                    Log.d("DemandListViewModel", "fetchData => Kullanıcı bulunamadı")
                 }
-            }
-            .addOnFailureListener { exception ->
-                requestLoading.value = false
-                Log.e("DemandListViewModel", "fetchData => Veri çekme hatası: ", exception)
-            }
+                .addOnFailureListener {
+                    requestLoading.value = false
+                    Log.e("DemandListViewModel", "fetchData => FireStore Veri Çekme Hatası")
+                }
+        }
     }
 
-
+    fun getData(){
+        _username.value = sharedPreferences.getString("name","")
+        _departmentType.value =  sharedPreferences.getString("departmentType","")
+        _authorityType.value =  sharedPreferences.getString("authorityType","")
+    }
+    /*
     fun getData(){
 
         val user = reference.getFirebaseAuth().currentUser
@@ -128,7 +126,7 @@ class DemandListViewModel : ViewModel() {
                 Log.e("DemandListViewModel", "getData => Veri çekme hatası: ", exception)
             }
 
-    }
+    }*/
 
     fun filterList(selectedFilter: String) {
         if (requestListTemp == null) {
@@ -173,6 +171,19 @@ class DemandListViewModel : ViewModel() {
 
     fun onLogOutClick(context: Context) {
         reference.getFirebaseAuth().signOut()
+
+        sharedPreferences.edit().apply {
+            remove("tcIdentityNo")
+            remove("email")
+            remove("name")
+            remove("password")
+            remove("telNo")
+            remove("authorityType")
+            remove("departmentType")
+            apply()
+        }
+        Log.e("DemandListActivitys", "Bilgileriniz silindi-----------------------------")
+
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)

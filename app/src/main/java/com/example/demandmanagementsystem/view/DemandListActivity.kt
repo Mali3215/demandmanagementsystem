@@ -1,6 +1,7 @@
 package com.example.demandmanagementsystem.view
 
 
+import android.content.Context
 import android.os.Binder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,12 +17,16 @@ import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.databinding.ActivityDemandListBinding
 import com.example.demandmanagementsystem.util.RequestUtil
+import com.example.demandmanagementsystem.util.UserDataPreferences
 import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 
 class DemandListActivity : AppCompatActivity()
     ,SearchView.OnQueryTextListener{
@@ -31,11 +36,20 @@ class DemandListActivity : AppCompatActivity()
     private lateinit var adapter:RequestAdapter
     private val util = RequestUtil()
     private lateinit  var spinnerDataAdapter: ArrayAdapter<String>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDemandListBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val sp = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+
+        Log.e("DemandListActivitys","tcIdentityNo "+sp.getString("tcIdentityNo", "Boş"))
+        Log.e("DemandListActivitys","email "+sp.getString("email", "Boş"))
+        Log.e("DemandListActivitys","name "+sp.getString("name", "Boş"))
+        Log.e("DemandListActivitys","password "+sp.getString("password", "Boş"))
+        Log.e("DemandListActivitys","telNo "+sp.getString("telNo", "Boş"))
+        Log.e("DemandListActivitys","authorityType "+sp.getString("authorityType", "Boş"))
+        Log.e("DemandListActivitys","departmentType "+sp.getString("departmentType", "Boş"))
 
 
         binding.recyclerViewDemandList.setHasFixedSize(true)

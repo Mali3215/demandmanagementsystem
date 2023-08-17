@@ -1,16 +1,21 @@
 package com.example.demandmanagementsystem.viewmodel
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.model.Requests
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.SortListByDate
 
-class CreatedRequestsViewModel: ViewModel() {
+class CreatedRequestsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val reference = FirebaseServiceReference()
     private val sort = SortListByDate()
+
+    val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val createdRequestsList: MutableLiveData<List<Requests>> = MutableLiveData()
     private val createdRequestsFilterList: MutableLiveData<List<Requests>> = MutableLiveData()
@@ -35,63 +40,66 @@ class CreatedRequestsViewModel: ViewModel() {
 
 
     fun fetchData() {
-
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user!!.uid
-
+        val userId = sharedPreferences.getString("userId",null)
         createdRequestsLoading.value = true
 
-        reference.usersCollection().document(userId)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
+        if (userId != null) {
+            reference.usersCollection().document(userId)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
 
-                    reference.requestsCollection()
-                        .get()
-                        .addOnSuccessListener { documentsnapshot ->
-                            var createdRequestList = ArrayList<Requests>()
+                        reference.requestsCollection()
+                            .get()
+                            .addOnSuccessListener { documentsnapshot ->
+                                var createdRequestList = ArrayList<Requests>()
 
-                            for (document in documentsnapshot.documents) {
-                                val requests = Requests(
-                                    document.id,
-                                    document.getString("requestCase").toString(),
-                                    document.getString("requestContactNumber").toString(),
-                                    document.getString("requestDate").toString(),
-                                    document.getString("requestDepartment").toString(),
-                                    document.getString("requestDescription").toString(),
-                                    document.getString("requestName").toString(),
-                                    document.getString("requestSendDepartment").toString(),
-                                    document.getString("requestSendId").toString(),
-                                    document.getString("requestSubject").toString(),
-                                    document.getString("requestType").toString()
-                                )
+                                for (document in documentsnapshot.documents) {
+                                    val requests = Requests(
+                                        document.id,
+                                        document.getString("requestCase").toString(),
+                                        document.getString("requestContactNumber").toString(),
+                                        document.getString("requestDate").toString(),
+                                        document.getString("requestDepartment").toString(),
+                                        document.getString("requestDescription").toString(),
+                                        document.getString("requestName").toString(),
+                                        document.getString("requestSendDepartment").toString(),
+                                        document.getString("requestSendId").toString(),
+                                        document.getString("requestSubject").toString(),
+                                        document.getString("requestType").toString()
+                                    )
 
-                                if (requests.requestSendID == userId) {
-                                    createdRequestList.add(requests)
+                                    if (requests.requestSendID == userId) {
+                                        createdRequestList.add(requests)
+                                    }
                                 }
+                                createdRequestsListTemp = createdRequestList
+                                val sortedList = sort.sortRequestsListByDate(createdRequestList)
+
+                                createdRequestsList.value = sortedList
+                                createdRequestsLoading.value = false
                             }
-                            createdRequestsListTemp = createdRequestList
-                            val sortedList = sort.sortRequestsListByDate(createdRequestList)
-
-                            createdRequestsList.value = sortedList
-                            createdRequestsLoading.value = false
-                        }
-                        .addOnFailureListener {
-                            createdRequestsLoading.value = false
-                            Log.e("CreatedRequestViewModel", "fetchData => FireStore Veri Çekme Hatası")
-                        }
-                } else {
-                    createdRequestsLoading.value = false
-                    Log.d("CreatedRequestViewModel", "fetchData => Kullanıcı bulunamadı")
+                            .addOnFailureListener {
+                                createdRequestsLoading.value = false
+                                Log.e("CreatedRequestViewModel", "fetchData => FireStore Veri Çekme Hatası")
+                            }
+                    } else {
+                        createdRequestsLoading.value = false
+                        Log.d("CreatedRequestViewModel", "fetchData => Kullanıcı bulunamadı")
+                    }
                 }
-            }
-            .addOnFailureListener { exception ->
-                createdRequestsLoading.value = false
-                Log.e("CreatedRequestViewModel", "fetchData => Veri çekme hatası: ", exception)
-            }
+                .addOnFailureListener { exception ->
+                    createdRequestsLoading.value = false
+                    Log.e("CreatedRequestViewModel", "fetchData => Veri çekme hatası: ", exception)
+                }
+        }
     }
-
-
+    fun getData(){
+        _username.value = sharedPreferences.getString("name","")
+        _departmentType.value =  sharedPreferences.getString("departmentType","")
+        _authorityType.value =  sharedPreferences.getString("authorityType","")
+    }
+/*
     fun getData(){
 
         val user = reference.getFirebaseAuth().currentUser
@@ -120,7 +128,7 @@ class CreatedRequestsViewModel: ViewModel() {
             }
 
     }
-
+*/
     fun filterList(selectedFilter: String){
         if (createdRequestsListTemp == null) {
             return

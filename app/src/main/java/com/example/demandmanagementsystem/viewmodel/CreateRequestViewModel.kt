@@ -1,11 +1,12 @@
 package com.example.demandmanagementsystem.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.databinding.ActivityCreateRequestBinding
 import com.example.demandmanagementsystem.model.CreateRequest
 import com.example.demandmanagementsystem.model.JobDetails
@@ -14,7 +15,9 @@ import com.example.demandmanagementsystem.util.CurrentDateTime
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.view.DemandListActivity
 
-class CreateRequestViewModel: ViewModel() {
+class CreateRequestViewModel(application: Application) : AndroidViewModel(application) {
+
+    val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
     private val dateTime = CurrentDateTime()
@@ -61,44 +64,31 @@ class CreateRequestViewModel: ViewModel() {
 
     fun requestFill(binding: ActivityCreateRequestBinding){
 
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user!!.uid
-
+        val userId = sharedPreferences.getString("userId","")
         val textRequestName = binding.textRequestUserName
         val textRequestDepartment = binding.textRequestDepartment
         val textRequestTelNo = binding.textRequestContactNumber
 
-        reference.usersCollection().document(userId)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
+        if (userId != null) {
 
-                    val username = documentSnapshot.getString("name")
+            val username = sharedPreferences.getString("name","")
+            val departmentType = sharedPreferences.getString("departmentType","")
+            val telNo = sharedPreferences.getString("telNo","")
 
-                    val departmentType = documentSnapshot.getString("deparmentType")
+            if (username != null) {
+                usernames.value = username
+                departmentTypes.value = departmentType
 
-                    val telNo = documentSnapshot.getString("telNo")
-                    if (username != null) {
-                        usernames.value = username
-                        departmentTypes.value = departmentType
-
-                        textRequestName.setText(username)
-                        textRequestDepartment.setText(departmentType)
-                        textRequestTelNo.setText(telNo)
-                    }
-                } else {
-                    Log.d("CreateRequestViewModel", "fetchDepartmentTypes => Kullanıcı bulunamadı")
-                }
-
+                textRequestName.setText(username)
+                textRequestDepartment.setText(departmentType)
+                textRequestTelNo.setText(telNo)
             }
-            .addOnFailureListener { exception ->
-                Log.e("CreateRequestViewModel", "fetchDepartmentTypes => Veri çekme hatası: ", exception)
-            }
+
+        }
     }
 
     fun createRequest(request: CreateRequest, context: Context) {
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user?.uid
+        val userId = sharedPreferences.getString("userId","")
 
         if (userId == null) {
 

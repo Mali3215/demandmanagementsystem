@@ -1,6 +1,7 @@
 package com.example.demandmanagementsystem.view
 
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -22,14 +23,13 @@ class RequestDetailActivity : AppCompatActivity() {
     private lateinit var viewModel: RequestDetailViewModel
     private var util = RequestUtil()
     private var requestID: String? = null
-    private var userDepartmentType = ""
-    private var requestDepartmentType = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this@RequestDetailActivity
             , R.layout.activity_request_detail)
 
+        val sharedPreferences = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
         viewModel = ViewModelProvider(this).get(RequestDetailViewModel::class.java)
 
         binding.toolbarRequest.title = "Detail"
@@ -42,27 +42,17 @@ class RequestDetailActivity : AppCompatActivity() {
         requestID = intent.getStringExtra(util.intentRequestId)
         viewModel.getData(requestID!!)
 
-        viewModel.requestDepartmentData.observe(this@RequestDetailActivity) { requestDepartmant ->
-            if (requestDepartmant != null) {
-                requestDepartmentType = requestDepartmant
+        val userDepartmentType = sharedPreferences.getString("departmentType",null)
+        val authorityType = sharedPreferences.getString("authorityType",null)
 
-                viewModel.userDepartmentData.observe(this@RequestDetailActivity) { userDepartmant ->
-                    if (userDepartmant != null) {
-                        userDepartmentType = userDepartmant
-                    }
-                }
+        viewModel.requestData.observe(this) { requestData ->
+            if (requestData != null) {
+                val requestCase = requestData.requestCase
 
-            }
-        }
+                if (authorityType == "Departman Çalışanı") {
+                    binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
+                    binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
-
-        viewModel.getAuthorityType { authorityType ->
-
-            if (authorityType == "Departman Çalışanı") {
-                binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
-                binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
-
-                viewModel.requestCaseData.observe(this) { requestCase ->
 
                     if (requestCase == util.waitingForApproval) {
                         // burada department çalışanı olarak ayar yapılacak gibi
@@ -75,71 +65,76 @@ class RequestDetailActivity : AppCompatActivity() {
 
                     } else if (requestCase == util.deniedRequest) {
 
-                        binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
+                        //binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
                         binding.layoutRequestDenied.visibility = View.VISIBLE
 
                     }
 
-                }
+                } else if ((authorityType == util.generalManager) || (authorityType == util.departmentManager) || (authorityType == util.departmentChief)) {
 
-            }else if((authorityType == util.generalManager) || (authorityType == util.departmentManager) || (authorityType == util.departmentChief)){
-                viewModel.requestCaseData.observe(this) { requestCase ->
-
-                    if ((requestCase == util.assignedToPerson) ) {
+                    if ((requestCase == util.assignedToPerson)) {
                         binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
                         binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
                     } else if (requestCase == util.waitingForApproval) {
 
-                        if (userDepartmentType == requestDepartmentType ){
-                            binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
-                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).title = util.menuTitleWorkCompleted
-                            binding.toolbarRequest.menu.findItem(R.id.reject).title = util.menuTitleWorkDenied
 
-                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = true
+                        if (userDepartmentType == requestData.requestSendDepartment) {
+                            binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
+                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).title =
+                                util.menuTitleWorkCompleted
+                            binding.toolbarRequest.menu.findItem(R.id.reject).title =
+                                util.menuTitleWorkDenied
+
+                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible =
+                                true
                             binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = true
 
-                        }else{
+                        } else {
 
-                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
+                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible =
+                                false
                             binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
                         }
 
-                    }else if (requestCase == util.completed) {
+                    } else if (requestCase == util.completed) {
                         binding.relativeLayoutWorkOrder.visibility = View.VISIBLE
                         binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
                         binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
-                    }else if (requestCase == util.newRequest) {
+                    } else if (requestCase == util.newRequest) {
 
-                        if(userDepartmentType == requestDepartmentType){
+                        if (userDepartmentType == requestData.requestSendDepartment) {
 
-                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = true
+                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible =
+                                true
                             binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = true
 
-                        }else{
+                        } else {
 
-                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
+                            binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible =
+                                false
                             binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
                         }
 
-                    }else if (requestCase == util.deniedRequest) {
+                    } else if (requestCase == util.deniedRequest) {
                         binding.openMenuButton.visibility = View.GONE
                         binding.layoutRequestDenied.visibility = View.VISIBLE
                         binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
                         binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
-                    }else if (requestCase == util.deniedWork) {
+                    } else if (requestCase == util.deniedWork) {
 
                         binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = false
                         binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = false
 
-                    }else {
+                    } else {
                         binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).isVisible = true
                         binding.toolbarRequest.menu.findItem(R.id.reject).isVisible = true
                     }
+
                 }
             }
         }

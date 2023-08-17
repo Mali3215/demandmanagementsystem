@@ -1,6 +1,7 @@
 package com.example.demandmanagementsystem.view
 
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -28,11 +29,12 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
     private val util = WorkOrderUtil()
     private val utilRequest = RequestUtil()
     private lateinit var spinnerDataAdapter: ArrayAdapter<String>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this@MyWorkOrderDetailActivity
             , R.layout.activity_my_work_order_detail)
+
+        val sharedPreferences = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
         binding.toolbarWorkOrder.title = "MyWorkOrder"
         setSupportActionBar(binding.toolbarWorkOrder)
@@ -66,10 +68,12 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
         }
 
+        val currentUserId = sharedPreferences.getString("userId",null)
+
         viewModel.workOrderData.observe(this) { workOrderData ->
             binding.selectedWorkOrder = workOrderData
             if (workOrderData?.workOrderCase == util.assignedToPerson) {
-                viewModel.getAuthorityType {currentUserId ->
+
                     if (workOrderData.selectedWorkOrderUserId == currentUserId){
                         binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = true
                         binding.toolbarWorkOrder.menu.findItem(R.id.jobReturn).isVisible = true
@@ -86,11 +90,10 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
                     }
 
-                }
+
 
             } else if (workOrderData?.workOrderCase == util.waitingForApproval) {
 
-                viewModel.getAuthorityType {currentUserId ->
                     if (workOrderData.createWorkOrderId == currentUserId){
 
                         binding.toolbarWorkOrder.menu.findItem(R.id.confirmJob).isVisible = true
@@ -112,7 +115,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
                     }
 
-                }
+
             }else if (workOrderData?.workOrderCase == util.completed) {
 
                 binding.spinnerWorkOrderUserSubject.visibility = View.GONE
@@ -127,7 +130,6 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
             }else if (workOrderData?.workOrderCase == util.activityProcessed) {
 
-                viewModel.getAuthorityType {currentUserId ->
                     if (workOrderData.selectedWorkOrderUserId == currentUserId){
 
                         binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
@@ -161,7 +163,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
                     }
 
-                }
+
 
             }else if (workOrderData?.workOrderCase == util.deniedWork) {
                 binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
@@ -170,15 +172,16 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
 
 
             }else if (workOrderData?.workOrderCase == util.jobReturn) {
+
                 binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
-                viewModel.getAuthorityType {currentUserId ->
+
                     if (workOrderData.createWorkOrderId == currentUserId){
                         binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = true
                         binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = true
                         binding.relativeLayoutWorkOrderDetail.visibility = View.GONE
                         binding.spinnerWorkOrderUserSubject.visibility = View.GONE
                     }
-                }
+
             }
         }
         binding.openMenuButtonWorkOrderResult.setOnClickListener {

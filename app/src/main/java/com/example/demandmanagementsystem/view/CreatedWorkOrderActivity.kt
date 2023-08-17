@@ -47,6 +47,7 @@ class CreatedWorkOrderActivity : AppCompatActivity()
 
         viewModel = ViewModelProvider(this).get(CreatedWorkOrderViewModel::class.java)
         viewModelDemand = ViewModelProvider(this).get(DemandListViewModel::class.java)
+
         binding.swipeRefreshLayoutCreatedWorkOrder.setOnRefreshListener {
             viewModel.fetchData()
             viewModel.getData()
