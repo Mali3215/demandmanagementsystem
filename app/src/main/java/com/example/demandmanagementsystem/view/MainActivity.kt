@@ -9,12 +9,9 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.demandmanagementsystem.databinding.ActivityMainBinding
 import com.example.demandmanagementsystem.util.GetUserSaveData
-import com.example.demandmanagementsystem.util.UserDataPreferences
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -83,8 +80,10 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 }.addOnFailureListener { exception ->
+
                     Log.e("MainActivity","oncreate => ${exception.localizedMessage}")
                     Toast.makeText(this@MainActivity, "Kullanıcı Adı veya Şifre Hatalı", Toast.LENGTH_LONG).show()
+                    
                 }
             }else{
                 Toast.makeText(this@MainActivity,"Bilgileriniz Boş Olamaz",Toast.LENGTH_LONG).show()
