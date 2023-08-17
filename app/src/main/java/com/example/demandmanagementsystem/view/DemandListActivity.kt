@@ -23,7 +23,6 @@ import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.databinding.ActivityDemandListBinding
 import com.example.demandmanagementsystem.util.RequestUtil
-import com.example.demandmanagementsystem.util.UserDataPreferences
 import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
