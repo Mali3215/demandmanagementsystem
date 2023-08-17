@@ -15,15 +15,7 @@ class WorkOrderUtil {
 
     val deniedWork = "İş Reddedildi"
 
-    val activityStart = "Aktiviteye Başla"  // bu butona basıldığında 2 adet sekme açılacak
-                                            // 1. sekme iş alt türü
-                                            // 2. sekme iş emri sonuç bilgileri
-
     val activityProcessed = "Aktivite İşleme Alındı"
-
-    val finalize = "Sonuçlandır"
-
-    val save = "Kaydet"
 
     val jobReturn = "İş İade Edildi"
 

@@ -45,7 +45,6 @@ class AddPersonActivity : AppCompatActivity() {
                 }
             })
 
-
             spinnerDataAdapter = ArrayAdapter(this,android.R.layout.simple_list_item_1
                 ,android.R.id.text1,departmentTypeList)
 
@@ -69,7 +68,6 @@ class AddPersonActivity : AppCompatActivity() {
                     typeOfStaffAdapter.notifyDataSetChanged()
                 }
             })
-
 
 
             typeOfStaffAdapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,android.R.id.text1,typeOfStaffList)

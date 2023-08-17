@@ -2,7 +2,6 @@ package com.example.demandmanagementsystem.view
 
 
 import android.content.Context
-import android.os.Binder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -17,15 +16,12 @@ import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.databinding.ActivityDemandListBinding
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
 
 class DemandListActivity : AppCompatActivity()
     ,SearchView.OnQueryTextListener{
