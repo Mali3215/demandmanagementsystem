@@ -14,8 +14,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import com.example.demandmanagementsystem.R
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.databinding.ActivityCreateWorkOrderBinding
 import com.example.demandmanagementsystem.model.JobDetails
+import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.util.WorkOrderUtil
 import com.example.demandmanagementsystem.viewmodel.CreateWorkOrderViewModel
@@ -30,7 +32,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-class CreateWorkOrderActivity : AppCompatActivity() {
+class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
+    private val reference= FirebaseServiceReference()
 
     private lateinit var binding: ActivityCreateWorkOrderBinding
     private var requestID: String? = null
@@ -267,5 +270,10 @@ class CreateWorkOrderActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+    override fun showAlertDialog() {
+        val sharedPreferences = getSharedPreferences("GirisBilgi",Context.MODE_PRIVATE)
+        reference.sigInOut(sharedPreferences, this@CreateWorkOrderActivity)
+    }
+
 
 }

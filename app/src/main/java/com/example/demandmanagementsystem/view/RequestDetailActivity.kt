@@ -13,12 +13,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.demandmanagementsystem.R
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.databinding.ActivityRequestDetailBinding
+import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.viewmodel.RequestDetailViewModel
 
-class RequestDetailActivity : AppCompatActivity() {
+class RequestDetailActivity : AppCompatActivity() , AlertDialogListener {
 
+
+    private val reference= FirebaseServiceReference()
     private lateinit var binding: ActivityRequestDetailBinding
     private lateinit var viewModel: RequestDetailViewModel
     private var util = RequestUtil()
@@ -226,6 +230,10 @@ class RequestDetailActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.worker_order_menu, menu)
         return true
+    }
+    override fun showAlertDialog() {
+        val sharedPreferences = getSharedPreferences("GirisBilgi",Context.MODE_PRIVATE)
+        reference.sigInOut(sharedPreferences, this@RequestDetailActivity)
     }
 
 }

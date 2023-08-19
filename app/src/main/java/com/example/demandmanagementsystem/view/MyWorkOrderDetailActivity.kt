@@ -16,13 +16,16 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.demandmanagementsystem.R
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.databinding.ActivityMyWorkOrderDetailBinding
+import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.util.WorkOrderUtil
 import com.example.demandmanagementsystem.viewmodel.MyWorkOrderDetailViewModel
 
-class MyWorkOrderDetailActivity : AppCompatActivity() {
+class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
 
+    private val reference= FirebaseServiceReference()
     private lateinit var binding: ActivityMyWorkOrderDetailBinding
     private lateinit var viewModel: MyWorkOrderDetailViewModel
     private var myWorkOrderID: String? = null
@@ -345,6 +348,10 @@ class MyWorkOrderDetailActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.work_order_detail_menu, menu)
         return true
+    }
+    override fun showAlertDialog() {
+        val sharedPreferences = getSharedPreferences("GirisBilgi",Context.MODE_PRIVATE)
+        reference.sigInOut(sharedPreferences, this@MyWorkOrderDetailActivity)
     }
 
 

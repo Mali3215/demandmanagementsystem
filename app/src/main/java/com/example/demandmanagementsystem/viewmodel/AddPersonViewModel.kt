@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.model.UserData
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.view.DemandListActivity
@@ -22,6 +23,44 @@ class AddPersonViewModel(application: Application) : AndroidViewModel(applicatio
     init {
         fetchDepartmentTypes()
         fetchTypeOfStaffList()
+        setupSnapshotListener(application)
+
+    }
+    private var alertDialogListener: AlertDialogListener? = null
+    fun setAlertDialogListener(listener: AlertDialogListener) {
+        alertDialogListener = listener
+    }
+    private fun setupSnapshotListener(application: Application) {
+
+        val reference = FirebaseServiceReference()
+        val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        val uuid = sharedPreferences.getString("userId","")
+        if (uuid != null) {
+            reference
+                .userSigInTokenCollection()
+                .document(uuid)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.e("DemandListViewModel", "SnapshotListener error", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+
+
+                        val guide = sharedPreferences.getString("token","")
+                        val token = snapshot.getString("token")
+                        Log.e("DemandListViewModel", "burada  guide $guide")
+                        Log.e("DemandListViewModel", "burada  token $token")
+
+                        if (guide != token){
+                            alertDialogListener?.showAlertDialog()
+                        }
+
+                    }
+                }
+        }
+
     }
 
     private fun fetchDepartmentTypes() {

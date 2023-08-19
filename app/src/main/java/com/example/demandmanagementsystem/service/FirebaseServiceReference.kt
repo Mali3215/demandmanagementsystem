@@ -1,5 +1,11 @@
 package com.example.demandmanagementsystem.service
 
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.util.Log
+import com.example.demandmanagementsystem.view.CreateAlertDialog
+import com.example.demandmanagementsystem.view.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -8,6 +14,11 @@ class FirebaseServiceReference {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val createAlertDialog = CreateAlertDialog()
+
+
+
+
 
     fun getFirebaseAuth(): FirebaseAuth {
         return auth
@@ -37,9 +48,28 @@ class FirebaseServiceReference {
         return firestore.collection("jobdetails")
     }
 
-    fun statusCollection(): CollectionReference {
-        return firestore.collection("status")
+    fun userSigInTokenCollection(): CollectionReference {
+        return firestore.collection("userSigInToken")
     }
 
+    fun sigInOut(sharedPreferences: SharedPreferences,context: Context) {
+        // coocki yapısı araştır
+        auth.signOut()
+        sharedPreferences.edit().apply {
+            remove("token")
+            remove("userId")
+            remove("tcIdentityNo")
+            remove("email")
+            remove("name")
+            remove("password")
+            remove("telNo")
+            remove("authorityType")
+            remove("departmentType")
+            apply()
+        }
+        Log.e("DemandListActivitys", "Bilgileriniz silindi-----------------------------")
+
+        createAlertDialog.createAlertDialog(context)
+    }
 
 }

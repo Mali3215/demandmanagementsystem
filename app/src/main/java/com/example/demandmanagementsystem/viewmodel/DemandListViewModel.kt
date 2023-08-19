@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.model.Requests
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.SortListByDate
@@ -19,10 +20,11 @@ import com.example.demandmanagementsystem.view.MainActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
 
 class DemandListViewModel(application: Application) : AndroidViewModel(application) {
-    init {
 
-        setupSnapshotListener()
+    init {
+        setupSnapshotListener(application)
     }
+
     val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
@@ -49,12 +51,21 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
 
     private  var requestListTemp: ArrayList<Requests>? = null
 
-    private fun setupSnapshotListener() {
+    private var alertDialogListener: AlertDialogListener? = null
+
+    fun setAlertDialogListener(listener: AlertDialogListener) {
+        alertDialogListener = listener
+    }
+
+    private fun setupSnapshotListener(application: Application) {
 
         val reference = FirebaseServiceReference()
-
+        val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        val uuid = sharedPreferences.getString("userId","")
+        if (uuid != null) {
             reference
-                .requestsCollection()
+                .userSigInTokenCollection()
+                .document(uuid)
                 .addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         Log.e("DemandListViewModel", "SnapshotListener error", e)
@@ -62,10 +73,20 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
                     }
 
                     if (snapshot != null) {
-                        fetchData()
-                        getData()
+
+
+                        val guide = sharedPreferences.getString("token","")
+                        val token = snapshot.getString("token")
+                        Log.e("DemandListViewModel", "burada  guide $guide")
+                        Log.e("DemandListViewModel", "burada  token $token")
+
+                        if (guide != token){
+                            alertDialogListener?.showAlertDialog()
+                        }
+
                     }
                 }
+        }
 
     }
 
@@ -197,6 +218,8 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
         reference.getFirebaseAuth().signOut()
 
         sharedPreferences.edit().apply {
+            remove("userId")
+            remove("token")
             remove("tcIdentityNo")
             remove("email")
             remove("name")

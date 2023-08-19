@@ -12,6 +12,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.R
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.databinding.ActivityCreateWorkOrderBinding
 import com.example.demandmanagementsystem.model.JobDetails
 import com.example.demandmanagementsystem.model.MyWorkOrders
@@ -28,7 +29,9 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(application){
-
+    init {
+        setupSnapshotListener(application)
+    }
     private val util = WorkOrderUtil()
     private val currentDateTime = CurrentDateTime()
     private val reference = FirebaseServiceReference()
@@ -37,6 +40,43 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
 
     private var spinnerDataList = ArrayList<String>()
     private val departmentUsersList = ArrayList<User>()
+    private var alertDialogListener: AlertDialogListener? = null
+    fun setAlertDialogListener(listener: AlertDialogListener) {
+        alertDialogListener = listener
+    }
+    private fun setupSnapshotListener(application: Application) {
+
+        val reference = FirebaseServiceReference()
+        val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        val uuid = sharedPreferences.getString("userId","")
+        if (uuid != null) {
+            reference
+                .userSigInTokenCollection()
+                .document(uuid)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.e("DemandListViewModel", "SnapshotListener error", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+
+
+                        val guide = sharedPreferences.getString("token","")
+                        val token = snapshot.getString("token")
+                        Log.e("DemandListViewModel", "burada  guide $guide")
+                        Log.e("DemandListViewModel", "burada  token $token")
+
+                        if (guide != token){
+                            alertDialogListener?.showAlertDialog()
+                        }
+
+                    }
+                }
+        }
+
+    }
+
 
     suspend fun getJobDetails(): ArrayList<JobDetails> {
         return suspendCoroutine { continuation ->

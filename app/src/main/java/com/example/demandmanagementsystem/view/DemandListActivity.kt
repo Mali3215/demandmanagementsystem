@@ -18,14 +18,17 @@ import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demandmanagementsystem.R
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.databinding.ActivityDemandListBinding
+import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
 
 class DemandListActivity : AppCompatActivity()
-    ,SearchView.OnQueryTextListener{
+    ,SearchView.OnQueryTextListener, AlertDialogListener{
 
+    private val reference= FirebaseServiceReference()
     private lateinit var viewModel: DemandListViewModel
     private lateinit var binding: ActivityDemandListBinding
     private lateinit var adapter:RequestAdapter
@@ -37,7 +40,7 @@ class DemandListActivity : AppCompatActivity()
         setContentView(binding.root)
 
         val sp = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
-
+        Log.e("DemandListActivitys","guide "+sp.getString("token", "Boş"))
         Log.e("DemandListActivitys","tcIdentityNo "+sp.getString("tcIdentityNo", "Boş"))
         Log.e("DemandListActivitys","email "+sp.getString("email", "Boş"))
         Log.e("DemandListActivitys","name "+sp.getString("name", "Boş"))
@@ -63,6 +66,7 @@ class DemandListActivity : AppCompatActivity()
         toggle.syncState()
 
         viewModel = ViewModelProvider(this@DemandListActivity).get(DemandListViewModel::class.java)
+        viewModel.setAlertDialogListener(this)
 
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             val itemId = menuItem.itemId
@@ -207,6 +211,10 @@ class DemandListActivity : AppCompatActivity()
         return true
     }
 
+    override fun showAlertDialog() {
+        val sharedPreferences = getSharedPreferences("GirisBilgi",Context.MODE_PRIVATE)
+        reference.sigInOut(sharedPreferences, this@DemandListActivity)
+    }
 
 
 }

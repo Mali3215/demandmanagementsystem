@@ -1,5 +1,6 @@
 package com.example.demandmanagementsystem.view
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,15 +14,17 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demandmanagementsystem.R
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.adapter.MyWorkOrdersAdapter
 import com.example.demandmanagementsystem.databinding.ActivityCreatedWorkOrderBinding
+import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.WorkOrderUtil
 import com.example.demandmanagementsystem.viewmodel.CreatedWorkOrderViewModel
 import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
 
 class CreatedWorkOrderActivity : AppCompatActivity()
-    , SearchView.OnQueryTextListener{
-
+    , SearchView.OnQueryTextListener, AlertDialogListener {
+    private val reference= FirebaseServiceReference()
     private lateinit var binding: ActivityCreatedWorkOrderBinding
     private lateinit var viewModel: CreatedWorkOrderViewModel
     private lateinit var viewModelDemand: DemandListViewModel
@@ -154,4 +157,9 @@ class CreatedWorkOrderActivity : AppCompatActivity()
         }
         return true
     }
+    override fun showAlertDialog() {
+        val sharedPreferences = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        reference.sigInOut(sharedPreferences, this@CreatedWorkOrderActivity)
+    }
+
 }

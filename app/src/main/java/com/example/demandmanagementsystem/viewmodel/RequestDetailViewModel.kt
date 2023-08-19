@@ -9,12 +9,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.model.RequestData
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.RequestUtil
 
 class RequestDetailViewModel(application: Application) : AndroidViewModel(application){
-
+    init {
+        setupSnapshotListener(application)
+    }
     val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
@@ -28,27 +31,42 @@ class RequestDetailViewModel(application: Application) : AndroidViewModel(applic
 
 
     val util = RequestUtil()
-    /*
-    fun getAuthorityType(callback: (String?) -> Unit) {
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user?.uid
+    private var alertDialogListener: AlertDialogListener? = null
+    fun setAlertDialogListener(listener: AlertDialogListener) {
+        alertDialogListener = listener
+    }
+    private fun setupSnapshotListener(application: Application) {
 
-        if (userId != null) {
-            reference.usersCollection().document(userId)
-                .get()
-                .addOnSuccessListener { documentSnapshot ->
-                    val authorityType = documentSnapshot.getString("authorityType")
-                    val departmentType = documentSnapshot.getString("deparmentType")
-                    _userDepartmentData.value = departmentType
-                    callback.invoke(authorityType)
+        val reference = FirebaseServiceReference()
+        val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        val uuid = sharedPreferences.getString("userId","")
+        if (uuid != null) {
+            reference
+                .userSigInTokenCollection()
+                .document(uuid)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.e("DemandListViewModel", "SnapshotListener error", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+
+
+                        val guide = sharedPreferences.getString("token","")
+                        val token = snapshot.getString("token")
+                        Log.e("DemandListViewModel", "burada  guide $guide")
+                        Log.e("DemandListViewModel", "burada  token $token")
+
+                        if (guide != token){
+                            alertDialogListener?.showAlertDialog()
+                        }
+
+                    }
                 }
-                .addOnFailureListener { exception ->
-                    callback.invoke(null)
-                }
-        } else {
-            callback.invoke(null)
         }
-    }*/
+
+    }
 
     fun getData(requestID: String) {
         reference.requestsCollection().document(requestID)

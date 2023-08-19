@@ -6,17 +6,15 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.model.MyWorkOrders
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.SortListByDate
 
 class CreatedWorkOrderViewModel(application: Application) : AndroidViewModel(application) {
-
     init {
-
-        setupSnapshotListener()
+        setupSnapshotListener(application)
     }
-
     private val reference = FirebaseServiceReference()
     private val sort = SortListByDate()
 
@@ -42,26 +40,44 @@ class CreatedWorkOrderViewModel(application: Application) : AndroidViewModel(app
 
     val authorityType: MutableLiveData<String?>
         get() = _authorityType
-
-    private fun setupSnapshotListener() {
+    private var alertDialogListener: AlertDialogListener? = null
+    fun setAlertDialogListener(listener: AlertDialogListener) {
+        alertDialogListener = listener
+    }
+    private fun setupSnapshotListener(application: Application) {
 
         val reference = FirebaseServiceReference()
+        val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        val uuid = sharedPreferences.getString("userId","")
+        if (uuid != null) {
+            reference
+                .userSigInTokenCollection()
+                .document(uuid)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.e("DemandListViewModel", "SnapshotListener error", e)
+                        return@addSnapshotListener
+                    }
 
-        reference
-            .workordersCollection()
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.e("DemandListViewModel", "SnapshotListener error", e)
-                    return@addSnapshotListener
-                }
+                    if (snapshot != null) {
 
-                if (snapshot != null) {
-                    fetchData()
-                    getData()
+
+                        val guide = sharedPreferences.getString("token","")
+                        val token = snapshot.getString("token")
+                        Log.e("DemandListViewModel", "burada  guide $guide")
+                        Log.e("DemandListViewModel", "burada  token $token")
+
+                        if (guide != token){
+                            alertDialogListener?.showAlertDialog()
+                        }
+
+                    }
                 }
-            }
+        }
 
     }
+
+
     fun fetchData() {
 
 

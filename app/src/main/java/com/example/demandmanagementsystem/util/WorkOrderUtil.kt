@@ -24,7 +24,7 @@ class WorkOrderUtil {
     val tempKindRequest = 1
 
     val workOrderUtilList = listOf("İş Durumlarını Filtere",assignedToPerson,waitingForApproval,
-        completed,deniedWork)
+        completed,deniedWork,activityProcessed)
 
     fun getRequestStatusColor(requestCase: String): Int {
         val color = when (requestCase) {

@@ -14,46 +14,63 @@ import kotlinx.coroutines.withContext
 class GetUserSaveData {
     private val reference = FirebaseServiceReference()
 
-    suspend fun getUserSaveData(userId: String, context: Context): Boolean {
+
+    fun getUserSaveData(userId: String,guideId: String, context: Context,callback: (Boolean) -> Unit) {
         val sharedPreferences = context.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
-        return try {
-            val documentSnapshot = reference
+        sharedPreferences.edit().apply {
+            remove("token")
+            remove("userId")
+            remove("tcIdentityNo")
+            remove("email")
+            remove("name")
+            remove("password")
+            remove("telNo")
+            remove("authorityType")
+            remove("departmentType")
+            apply()
+        }
+
+            reference
                 .usersCollection()
                 .document(userId)
                 .get()
-                .await()
+                .addOnSuccessListener {documentSnapshot ->
+                    if (documentSnapshot.exists()) {
 
-            if (documentSnapshot.exists()) {
+                        val tcIdentityNo = documentSnapshot.getString("tcIdentityNo").toString()
+                        val email = documentSnapshot.getString("email").toString()
+                        val name = documentSnapshot.getString("name").toString()
+                        val password = tcIdentityNo.substring(0, 6)
+                        val telNo = documentSnapshot.getString("telNo").toString()
+                        val authorityType = documentSnapshot.getString("authorityType").toString()
+                        val departmentType = documentSnapshot.getString("deparmentType").toString()
 
-                val tcIdentityNo = documentSnapshot.getString("tcIdentityNo").toString()
-                val email = documentSnapshot.getString("email").toString()
-                val name = documentSnapshot.getString("name").toString()
-                val password = tcIdentityNo.substring(0, 6)
-                val telNo = documentSnapshot.getString("telNo").toString()
-                val authorityType = documentSnapshot.getString("authorityType").toString()
-                val departmentType = documentSnapshot.getString("deparmentType").toString()
+                        sharedPreferences.edit().apply {
+                            putString("token",guideId)
+                            putString("userId", userId)
+                            putString("tcIdentityNo", tcIdentityNo)
+                            putString("email", email)
+                            putString("name", name)
+                            putString("password", password)
+                            putString("telNo", telNo)
+                            putString("authorityType", authorityType)
+                            putString("departmentType", departmentType)
+                            apply()
+                        }
 
-                sharedPreferences.edit().apply {
-                    putString("userId", userId)
-                    putString("tcIdentityNo", tcIdentityNo)
-                    putString("email", email)
-                    putString("name", name)
-                    putString("password", password)
-                    putString("telNo", telNo)
-                    putString("authorityType", authorityType)
-                    putString("departmentType", departmentType)
-                    apply()
+                        callback.invoke(true)
+                    } else {
+                        Log.d("GetUserData", "fetchData => Kullanıcı bulunamadı")
+                        callback.invoke(false)
+                    }
+                }.addOnFailureListener {
+                    Log.e("GetUserData", "Hata: ${it.localizedMessage}")
                 }
 
-                true
-            } else {
-                Log.d("GetUserData", "fetchData => Kullanıcı bulunamadı")
-                false
-            }
-        } catch (e: Exception) {
-            Log.e("GetUserData", "Hata: ${e.localizedMessage}")
-            false
-        }
+
+
     }
 }
+
+

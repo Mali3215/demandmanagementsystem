@@ -6,6 +6,9 @@
         <item name="android:windowBackground">#03A9F4</item>
         <item name="android:statusBarColor">#03A9F4</item>
     </style>
+    <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!-- Diğer stil özelliklerini burada belirtebilirsiniz -->
+    </style>
 
     <style name="Theme.Demandmanagementsystem" parent="Base.Theme.Demandmanagementsystem" />
 </resources>

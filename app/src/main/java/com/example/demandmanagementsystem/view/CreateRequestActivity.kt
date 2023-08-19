@@ -1,5 +1,6 @@
 package com.example.demandmanagementsystem.view
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -12,14 +13,15 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.demandmanagementsystem.R
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.databinding.ActivityCreateRequestBinding
 import com.example.demandmanagementsystem.model.CreateRequest
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.viewmodel.CreateRequestViewModel
 
-class CreateRequestActivity : AppCompatActivity() {
+class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
+    private val reference= FirebaseServiceReference()
     private lateinit var binding: ActivityCreateRequestBinding
-    private lateinit var reference: FirebaseServiceReference
     private lateinit var viewModel: CreateRequestViewModel
     private val departmentTypeList = ArrayList<String>()
     private lateinit var spinnerDataAdapter: ArrayAdapter<String>
@@ -204,6 +206,10 @@ class CreateRequestActivity : AppCompatActivity() {
         }
     }
 
+    override fun showAlertDialog() {
+        val sharedPreferences = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        reference.sigInOut(sharedPreferences, this@CreateRequestActivity)
+    }
 
 
 

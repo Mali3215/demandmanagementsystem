@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.databinding.ActivityCreateRequestBinding
 import com.example.demandmanagementsystem.model.CreateRequest
 import com.example.demandmanagementsystem.model.JobDetails
@@ -16,7 +17,10 @@ import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.view.DemandListActivity
 
 class CreateRequestViewModel(application: Application) : AndroidViewModel(application) {
+    init {
+        setupSnapshotListener(application)
 
+    }
     val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
@@ -41,9 +45,46 @@ class CreateRequestViewModel(application: Application) : AndroidViewModel(applic
     val departmentTypes: MutableLiveData<String?>
         get() = _departmentType
 
+    private var alertDialogListener: AlertDialogListener? = null
+    fun setAlertDialogListener(listener: AlertDialogListener) {
+        alertDialogListener = listener
+    }
     init {
         fetchDepartmentTypes()
     }
+    private fun setupSnapshotListener(application: Application) {
+
+        val reference = FirebaseServiceReference()
+        val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        val uuid = sharedPreferences.getString("userId","")
+        if (uuid != null) {
+            reference
+                .userSigInTokenCollection()
+                .document(uuid)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.e("DemandListViewModel", "SnapshotListener error", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+
+
+                        val guide = sharedPreferences.getString("token","")
+                        val token = snapshot.getString("token")
+                        Log.e("DemandListViewModel", "burada  guide $guide")
+                        Log.e("DemandListViewModel", "burada  token $token")
+
+                        if (guide != token){
+                            alertDialogListener?.showAlertDialog()
+                        }
+
+                    }
+                }
+        }
+
+    }
+
 
     private fun fetchDepartmentTypes() {
       reference.departmentTypeCollection()
