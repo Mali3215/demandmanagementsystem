@@ -137,36 +137,48 @@ class CreatedRequestsViewModel(application: Application) : AndroidViewModel(appl
         _departmentType.value =  sharedPreferences.getString("departmentType","")
         _authorityType.value =  sharedPreferences.getString("authorityType","")
     }
-/*
-    fun getData(){
+    private val requestSearchFilterList: MutableLiveData<List<Requests>> = MutableLiveData()
+    fun searchInFirestore(text: String) {
 
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user!!.uid
-
-       reference.usersCollection().document(userId)
+        val filteredList = mutableListOf<Requests>()
+        reference
+            .requestsCollection()
             .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val username = documentSnapshot.getString("name")
-                    _username.value = username
-
-                    val departmentType = documentSnapshot.getString("deparmentType")
-                    _departmentType.value = departmentType
-
-                    val authorityType = documentSnapshot.getString("authorityType")
-                    _authorityType.value = authorityType
-                } else {
-                    createdRequestsLoading.value = false
-                    Log.d("CreatedRequestViewModel", "getData => Kullanıcı bulunamadı")
+            .addOnSuccessListener { result ->
+                for (document in result.documents) {
+                    val requests = Requests(
+                        document.id,
+                        document.getString("requestCase").toString(),
+                        document.getString("requestContactNumber").toString(),
+                        document.getString("requestDate").toString(),
+                        document.getString("requestDepartment").toString(),
+                        document.getString("requestDescription").toString(),
+                        document.getString("requestName").toString(),
+                        document.getString("requestSendDepartment").toString(),
+                        document.getString("requestSendID").toString(),
+                        document.getString("requestSubject").toString(),
+                        document.getString("requestType").toString()
+                    )
+                    if (requests.requestSubject.contains(text) || requests.requestDepartment.contains(text)) {
+                        filteredList.add(requests)
+                    }
                 }
+                val sortedList = sort.sortRequestsListByDate(filteredList)
+                requestSearchFilterList.value = sortedList
+
             }
             .addOnFailureListener { exception ->
-                createdRequestsLoading.value = false
-                Log.e("CreatedRequestViewModel", "getData => Veri çekme hatası: ", exception)
+                Log.e("Search", "Error getting documents: ", exception)
             }
+    }
+
+
+    fun requestSearchFilterList(): MutableLiveData<List<Requests>>{
+
+        createdRequestsLoading.value = false
+        return requestSearchFilterList
 
     }
-*/
     fun filterList(selectedFilter: String){
         if (createdRequestsListTemp == null) {
             return

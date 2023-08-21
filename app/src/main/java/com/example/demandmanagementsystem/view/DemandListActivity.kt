@@ -165,7 +165,6 @@ class DemandListActivity : AppCompatActivity()
 
         }
 
-
     }
 
     override fun onBackPressed() {
@@ -175,16 +174,6 @@ class DemandListActivity : AppCompatActivity()
             onBackPressedDispatcher.onBackPressed()
         }
     }
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.search_menu,menu)
-
-        val item = menu.findItem(R.id.search_demand)
-        val searchView = item.actionView as SearchView
-        searchView.setOnQueryTextListener(this@DemandListActivity)
-        binding.toolbar.menu.findItem(R.id.add_action).isVisible = false
-        return super.onCreateOptionsMenu(menu)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
@@ -196,17 +185,44 @@ class DemandListActivity : AppCompatActivity()
             else -> super.onOptionsItemSelected(item)
         }
     }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.search_menu,menu)
+
+        val item = menu.findItem(R.id.search_demand)
+        val searchView = item.actionView as SearchView
+        searchView.setOnQueryTextListener(this@DemandListActivity)
+
+
+        binding.toolbar.menu.findItem(R.id.add_action).isVisible = false
+        return super.onCreateOptionsMenu(menu)
+    }
+
+
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        if (newText != null) {
+        newText?.let {
             Log.e("onQueryTextChange",newText)
+            viewModel.searchInFirestore(newText)
+
+            viewModel.requestSearchFilterList().observe(this@DemandListActivity) { requests ->
+                adapter = RequestAdapter(applicationContext, requests!!)
+                binding.recyclerViewDemandList.adapter = adapter
+            }
+
         }
         return true
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        if (query != null) {
-            Log.e("onQueryTextSubmit",query)
+        query?.let {
+            Log.e("onQueryTextChange",query)
+            viewModel.searchInFirestore(query)
+
+            viewModel.requestSearchFilterList().observe(this@DemandListActivity) { requests ->
+
+                adapter = RequestAdapter(applicationContext, requests!!)
+                binding.recyclerViewDemandList.adapter = adapter
+            }
         }
         return true
     }

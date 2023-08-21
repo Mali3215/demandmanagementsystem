@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.adapter.AlertDialogListener
+import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.model.Requests
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.SortListByDate
@@ -18,13 +19,14 @@ import com.example.demandmanagementsystem.view.CreatedRequestsActivity
 import com.example.demandmanagementsystem.view.CreatedWorkOrderActivity
 import com.example.demandmanagementsystem.view.MainActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
+import java.util.Locale
 
 class DemandListViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         setupSnapshotListener(application)
     }
-
+    private lateinit var adapter: RequestAdapter
     val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
@@ -39,7 +41,6 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
 
     val username: MutableLiveData<String?>
         get() = _username
-
 
     val departmentType: MutableLiveData<String?>
         get() = _departmentType
@@ -136,42 +137,53 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
                 }
         }
     }
+    private val requestSearchFilterList: MutableLiveData<List<Requests>> = MutableLiveData()
+    fun searchInFirestore(text: String) {
 
+        val filteredList = mutableListOf<Requests>()
+        reference
+            .requestsCollection()
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result.documents) {
+                    val requests = Requests(
+                        document.id,
+                        document.getString("requestCase").toString(),
+                        document.getString("requestContactNumber").toString(),
+                        document.getString("requestDate").toString(),
+                        document.getString("requestDepartment").toString(),
+                        document.getString("requestDescription").toString(),
+                        document.getString("requestName").toString(),
+                        document.getString("requestSendDepartment").toString(),
+                        document.getString("requestSendID").toString(),
+                        document.getString("requestSubject").toString(),
+                        document.getString("requestType").toString()
+                    )
+                    if (requests.requestSubject.lowercase(Locale.ROOT).contains(text) || requests.requestDepartment.lowercase(Locale.ROOT).contains(text)) {
+                        filteredList.add(requests)
+                    }
+                }
+                val sortedList = sort.sortRequestsListByDate(filteredList)
+                requestSearchFilterList.value = sortedList
+
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Search", "Error getting documents: ", exception)
+            }
+    }
+    // ViewModel içerisinde
+
+    fun requestSearchFilterList(): MutableLiveData<List<Requests>>{
+
+        requestLoading.value = false
+        return requestSearchFilterList
+
+    }
     fun getData(){
         _username.value = sharedPreferences.getString("name","")
         _departmentType.value =  sharedPreferences.getString("departmentType","")
         _authorityType.value =  sharedPreferences.getString("authorityType","")
     }
-    /*
-    fun getData(){
-
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user!!.uid
-
-        reference.usersCollection().document(userId)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-
-                    val username = documentSnapshot.getString("name")
-                    _username.value = username
-
-                    val departmentType = documentSnapshot.getString("deparmentType")
-                    _departmentType.value = departmentType
-
-                    val authorityType = documentSnapshot.getString("authorityType")
-                    _authorityType.value = authorityType
-                } else {
-                    requestLoading.value = false
-                    Log.d("DemandListViewModel", "getData => Kullanıcı bulunamadı")
-                }
-            }
-            .addOnFailureListener { exception ->
-                requestLoading.value = false
-                Log.e("DemandListViewModel", "getData => Veri çekme hatası: ", exception)
-            }
-
-    }*/
 
     fun filterList(selectedFilter: String) {
         if (requestListTemp == null) {

@@ -139,15 +139,29 @@ class CreatedRequestsActivity : AppCompatActivity()
         }
     }
     override fun onQueryTextChange(newText: String?): Boolean {
-        if (newText != null) {
+        newText?.let {
             Log.e("onQueryTextChange",newText)
+            viewModel.searchInFirestore(newText)
+
+            viewModel.requestSearchFilterList().observe(this@CreatedRequestsActivity) { requests ->
+                adapter = RequestAdapter(applicationContext, requests!!)
+                binding.recyclerViewCreatedRequests.adapter = adapter
+            }
+
         }
         return true
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        if (query != null) {
-            Log.e("onQueryTextSubmit",query)
+        query?.let {
+            Log.e("onQueryTextChange",query)
+            viewModel.searchInFirestore(query)
+
+            viewModel.requestSearchFilterList().observe(this@CreatedRequestsActivity) { requests ->
+
+                adapter = RequestAdapter(applicationContext, requests!!)
+                binding.recyclerViewCreatedRequests.adapter = adapter
+            }
         }
         return true
     }

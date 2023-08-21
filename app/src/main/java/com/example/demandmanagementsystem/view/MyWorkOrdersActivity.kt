@@ -133,15 +133,29 @@ class MyWorkOrdersActivity : AppCompatActivity(), SearchView.OnQueryTextListener
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        if (newText != null) {
+        newText?.let {
             Log.e("onQueryTextChange",newText)
+            viewModel.searchInFirestore(newText)
+
+            viewModel.workOrderSearchFilterList().observe(this@MyWorkOrdersActivity) { workOrder ->
+                adapter = MyWorkOrdersAdapter(applicationContext, workOrder!!)
+                binding.recyclerViewMyWorkOrderList.adapter = adapter
+            }
+
         }
         return true
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        if (query != null) {
-            Log.e("onQueryTextSubmit",query)
+        query?.let {
+            Log.e("onQueryTextChange",query)
+            viewModel.searchInFirestore(query)
+
+            viewModel.workOrderSearchFilterList().observe(this@MyWorkOrdersActivity) { workOrder ->
+
+                adapter = MyWorkOrdersAdapter(applicationContext, workOrder!!)
+                binding.recyclerViewMyWorkOrderList.adapter = adapter
+            }
         }
         return true
     }

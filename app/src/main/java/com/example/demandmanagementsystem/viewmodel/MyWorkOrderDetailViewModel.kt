@@ -6,6 +6,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,6 +17,7 @@ import com.example.demandmanagementsystem.model.JobDetails
 import com.example.demandmanagementsystem.model.MyWorkOrders
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.WorkOrderUtil
+import com.example.demandmanagementsystem.view.CreateMenuAlertDialog
 import com.example.demandmanagementsystem.view.DemandListActivity
 import com.example.demandmanagementsystem.view.MyWorkOrderDetailActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
@@ -33,6 +35,8 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
     val workOrderUserSubject: LiveData<String?> get() = _workOrderUserSubject
 
     private val util = WorkOrderUtil()
+
+    private val createMenuAlertDialog = CreateMenuAlertDialog()
 
     private lateinit var arrayRequestInfo: ArrayList<String>
 
@@ -242,60 +246,88 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
             "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString()
         )
         if (tempKind == util.tempKindRequest){
-            reference.requestsCollection()
+
+            reference
+                .requestsCollection()
                 .document(_workOrderData.value!!.workOrderRequestId!!)
-                .update(updateRequestData)
-                .addOnSuccessListener {
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
 
-                    val intent = Intent(context,
-                        DemandListActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    context.startActivity(intent)
-                    Toast.makeText(
-                        context,
-                        "İş Reddedildi", Toast.LENGTH_SHORT
-                    ).show()
-                    Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => Güncellendi ")
+                    val requestCaseListener = documentSnapshot.getString("requestCase").toString()
+
+                    if (requestCaseListener == util.deniedWork) {
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu iş Emri Daha Önce Reddedilmiştir")
+                    }else if (requestCaseListener == util.completed) {
+                         createMenuAlertDialog.createMenuAlertDialog(context,"Bu iş Emri Daha Önce Tamamlanmıştır")
+                    }else if (requestCaseListener == util.jobReturn) {
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu iş Emri Daha Önce İade Edilmiştir")
+                    }else if (requestCaseListener == util.assignedToPerson){
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Bir Personele Atanmıştır")
+                    }else{
+
+                        reference
+                            .requestsCollection()
+                            .document(_workOrderData.value!!.workOrderRequestId!!)
+                            .update(updateRequestData)
+                            .addOnSuccessListener {
+                                val intent = Intent(context, DemandListActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                context.startActivity(intent)
+                                Toast.makeText(context, "İş Reddedildi", Toast.LENGTH_SHORT).show()
+                                Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => Güncellendi ")
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(context, "Hata! İş Reddedilemedi", Toast.LENGTH_SHORT
+                                ).show()
+                                Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => Hata ")
+                            }
+                    }
+                }.addOnFailureListener {
+                    Log.e("MyWorkOrderViewModel","Daha önce Oluşturulmuştur")
                 }
-                .addOnFailureListener { e ->
-                    Toast.makeText(
-                        context,
-                        "Hata! İş Reddedilemedi", Toast.LENGTH_SHORT
-                    ).show()
-                    Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => Hata ")
-                }
+
         }
-
-
-        reference.workordersCollection()
+        reference
+            .workordersCollection()
             .document(_workOrderData.value!!.workOrderID!!)
-            .update(updateData)
-            .addOnSuccessListener {
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                val workOrderCaseListener = documentSnapshot.getString("workOrderCase").toString()
 
-                val intent = Intent(context,
-                    DemandListActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                context.startActivity(intent)
-                Toast.makeText(
-                    context,
-                    "İş Reddedildi", Toast.LENGTH_SHORT
-                ).show()
-                Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => work => Güncellendi ")
+                if (workOrderCaseListener == util.deniedWork){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Reddedilmiştir")
+                }else if (workOrderCaseListener == util.jobReturn){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu Talep Daha Önce İade Edilmiştir")
+                }else if (workOrderCaseListener == util.completed){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Tamamlanmıştır")
+                }else if (workOrderCaseListener == util.assignedToPerson){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Bir Personele Atanmıştır")
+                }else {
+                    reference
+                        .workordersCollection()
+                        .document(_workOrderData.value!!.workOrderID!!)
+                        .update(updateData)
+                        .addOnSuccessListener {
+
+                            val intent = Intent(context, DemandListActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            context.startActivity(intent)
+                            Toast.makeText(context, "İş Reddedildi", Toast.LENGTH_SHORT).show()
+                            Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => work => Güncellendi ")
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(context, "Hata! İş Reddedilemedi", Toast.LENGTH_SHORT).show()
+                            Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => work => Hata ")
+                        }
+                }
+            }.addOnFailureListener {
+                Log.e("MyWorkOrderViewModel","Daha önce Oluşturulmuştur")
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(
-                    context,
-                    "Hata! İş Reddedilemedi", Toast.LENGTH_SHORT
-                ).show()
-                Log.e("MyWorkOrderDetailViewModel", "menuDeniedUpdate => work => Hata ")
-            }
+
+
 
     }
 
-    /*
-                      arrayRequestInfo.add(workOrderRequestType)
-                         arrayRequestInfo.add(workOrderRequestSendDepartmen)
-                      */
     fun getDataSpinnerRequest(completion: (List<String>) -> Unit) {
         reference
             .jobDetailsCollection()
@@ -318,9 +350,7 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
                             resultList.addAll(list ?: emptyList())
                         }
                     }
-
                 }
-
                 completion(resultList)
             }
             .addOnFailureListener {
@@ -376,8 +406,6 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
         context: Context,
         myWorkOrderID: String
     ){
-
-
         val updateData =  hashMapOf(
             "workOrderRequestId" to _workOrderData.value!!.workOrderRequestId,
             "workOrderPersonToDoJob" to _workOrderData.value!!.workOrderPersonToDoJob,
@@ -416,10 +444,7 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
 
     }
 
-    fun jobReturn( binding: ActivityMyWorkOrderDetailBinding,
-                     context: Context,
-                     myWorkOrderID: String){
-
+    fun jobReturn( binding: ActivityMyWorkOrderDetailBinding, context: Context, myWorkOrderID: String){
 
         val updateData =  hashMapOf(
             "workOrderRequestId" to _workOrderData.value!!.workOrderRequestId,
@@ -461,46 +486,88 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
         val updateWorkOrderData = hashMapOf<String, Any>(
             "workOrderCase" to util.completed
         )
-
-        reference.workordersCollection()
+        reference
+            .workordersCollection()
             .document(myWorkOrderID)
-            .update(updateWorkOrderData)
+            .get()
             .addOnSuccessListener { documentSnapshot ->
+                val workOrderCaseListener = documentSnapshot.getString("workOrderCase").toString()
 
-                Toast.makeText(
-                    context,
-                    "İş Tamamlandı", Toast.LENGTH_SHORT
-                ).show()
+                if (workOrderCaseListener == util.completed){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu Talep Daha Önce Tamamlanmıştır")
+                }else if (workOrderCaseListener == util.jobReturn){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu Talep Daha Önce İade Edilmiştir")
+                }else if (workOrderCaseListener == util.deniedWork){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Reddedilmiştir")
+                }else if (workOrderCaseListener == util.assignedToPerson){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Bir Personele Atanmıştır")
+                }else{
+                    reference.workordersCollection()
+                        .document(myWorkOrderID)
+                        .update(updateWorkOrderData)
+                        .addOnSuccessListener { documentSnapshot ->
 
-            }.addOnFailureListener { e ->
-                Toast.makeText(
-                    context,
-                    "Hata! İş Tamamlanamadı", Toast.LENGTH_SHORT
-                ).show()
-                Log.e("RequestDetailViewModel", "workCompleted => work Hata ")
+                            Toast.makeText(
+                                context,
+                                "İş Tamamlandı", Toast.LENGTH_SHORT
+                            ).show()
+
+                        }.addOnFailureListener { e ->
+                            Toast.makeText(
+                                context,
+                                "Hata! İş Tamamlanamadı", Toast.LENGTH_SHORT
+                            ).show()
+                            Log.e("RequestDetailViewModel", "workCompleted => work Hata ")
+                        }
+                }
+
+            }.addOnFailureListener {
+                Log.e("MyWorkOrderDetailViewModel","Daha önce Oluşturulmuştur")
             }
+
 
         val updateData = hashMapOf<String, Any>(
             "requestCase" to util.completed
         )
-        Log.e("MyWorkOrderDetailViewModel", "=>$requestID")
-        if (requestID != ""){
-            reference.requestsCollection()
+
+        if (requestID != "") {
+            reference
+                .requestsCollection()
                 .document(requestID)
-                .update(updateData)
+                .get()
                 .addOnSuccessListener { documentSnapshot ->
 
-                    Toast.makeText(
-                        context,
-                        "İş Tamamlandı", Toast.LENGTH_SHORT
-                    ).show()
+                    val requestCaseListener = documentSnapshot.getString("requestCase").toString()
 
-                }.addOnFailureListener { e ->
-                    Toast.makeText(
-                        context,
-                        "Hata! İş Tamamlanamadı", Toast.LENGTH_SHORT
-                    ).show()
-                    Log.e("MyWorkOrderDetailViewModel", "workCompleted => ref => Hata ")
+                    if (requestCaseListener == util.completed) {
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu iş Emri Daha Önce Tamamlanmıştır")
+                    }else if (requestCaseListener == util.jobReturn){
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu Talep Daha Önce İade Edilmiştir")
+                    }else if (requestCaseListener == util.deniedWork){
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Reddedilmiştir")
+                    }else if (requestCaseListener == util.assignedToPerson){
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Bir Personele Atanmıştır")
+                    } else {
+                        reference.requestsCollection()
+                            .document(requestID)
+                            .update(updateData)
+                            .addOnSuccessListener { documentSnapshot ->
+
+                                Toast.makeText(
+                                    context,
+                                    "İş Tamamlandı", Toast.LENGTH_SHORT
+                                ).show()
+
+                            }.addOnFailureListener { e ->
+                                Toast.makeText(
+                                    context,
+                                    "Hata! İş Tamamlanamadı", Toast.LENGTH_SHORT
+                                ).show()
+                                Log.e("MyWorkOrderDetailViewModel", "workCompleted => ref => Hata ")
+                            }
+                    }
+                }.addOnFailureListener {
+                    Log.e("CreateWorkOrderActivity","Daha önce Oluşturulmuştur")
                 }
         }
 
@@ -510,30 +577,3 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
 
 
 }
-
-/*
-   fun getAuthorityType(callback: (String?) -> (Unit)) {
-        val user = reference.getFirebaseAuth().currentUser
-        val currentUserId = user?.uid
-
-        callback.invoke(currentUserId)
-
-
-        /*if (userId != null) {
-            reference.usersCollection().document(userId)
-                .get()
-                .addOnSuccessListener { documentSnapshot ->
-                    val authorityType = documentSnapshot.getString("authorityType")
-                    val departmentType = documentSnapshot.getString("deparmentType")
-                    _userDepartmentData.value = departmentType
-                    callback.invoke(authorityType)
-                }
-                .addOnFailureListener { exception ->
-                    callback.invoke(null)
-                }
-        } else {
-            callback.invoke(null)
-        }*/
-    }
-
- */

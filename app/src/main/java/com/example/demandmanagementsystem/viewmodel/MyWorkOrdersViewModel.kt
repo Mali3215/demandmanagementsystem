@@ -10,6 +10,7 @@ import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.model.MyWorkOrders
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.SortListByDate
+import java.util.Locale
 
 class MyWorkOrdersViewModel(application: Application) : AndroidViewModel(application) {
     init {
@@ -136,7 +137,56 @@ class MyWorkOrdersViewModel(application: Application) : AndroidViewModel(applica
         myWorkOrderFilterList.value = sortedList
 
     }
+    private val workOrderSearchFilterList: MutableLiveData<List<MyWorkOrders>> = MutableLiveData()
+    fun searchInFirestore(text: String) {
 
+        val filteredList = mutableListOf<MyWorkOrders>()
+        reference
+            .workordersCollection()
+            .get()
+            .addOnSuccessListener { result ->
+                for (doc in result.documents) {
+                    val workOrder = MyWorkOrders(
+                        doc.id,
+                        doc.getString("workOrderAssetInformation").toString(),
+                        doc.getString("workOrderDate").toString(),
+                        doc.getString("workOrderDepartment").toString(),
+                        doc.getString("workOrderDescription").toString(),
+                        doc.getString("workOrderPersonToDoJob").toString(),
+                        doc.getString("workOrderRequestDescription").toString(),
+                        doc.getString("workOrderRequestId").toString(),
+                        doc.getString("workOrderRequestSubject").toString(),
+                        doc.getString("workOrderSubject").toString(),
+                        doc.getString("workOrdercreateUserName").toString(),
+                        doc.getString("workOrderCase").toString(),
+                        doc.getString("selectedWorkOrderUserId").toString(),
+                        doc.getString("workOrderRequestType").toString(),
+                        doc.getString("workOrderSubDescription").toString(),
+                        doc.getString("workOrderUserSubject").toString(),
+                        doc.getString("createWorkOrderId").toString(),
+                        doc.getString("workOrderType").toString()
+                    )
+                    if ((workOrder.workOrderSubject?.lowercase(Locale.ROOT)?.contains(text) == true) || workOrder.workOrderRequestSubject?.lowercase(
+                            Locale.ROOT)?.contains(text) == true) {
+                        filteredList.add(workOrder)
+                    }
+                }
+                val sortedList = sort.sortWorkOrderListByDate(filteredList)
+                workOrderSearchFilterList.value = sortedList
+
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Search", "Error getting documents: ", exception)
+            }
+    }
+    // ViewModel içerisinde
+
+    fun workOrderSearchFilterList(): MutableLiveData<List<MyWorkOrders>>{
+
+        myWorkOrderLoading.value = false
+        return workOrderSearchFilterList
+
+    }
 
     fun getWorkOrderFilterList(): MutableLiveData<List<MyWorkOrders>>{
 
@@ -150,36 +200,6 @@ class MyWorkOrdersViewModel(application: Application) : AndroidViewModel(applica
         _departmentType.value =  sharedPreferences.getString("departmentType","")
         _authorityType.value =  sharedPreferences.getString("authorityType","")
     }
-
-    /*
-    fun getData(){
-        val user = reference.getFirebaseAuth().currentUser
-        val userId = user!!.uid
-
-        reference.usersCollection().document(userId)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val username = documentSnapshot.getString("name")
-                    _username.value = username
-
-                    val departmentType = documentSnapshot.getString("deparmentType")
-                    _departmentType.value = departmentType
-
-                    val authorityType = documentSnapshot.getString("authorityType")
-                    _authorityType.value = authorityType
-                } else {
-                    myWorkOrderLoading.value = false
-                    Log.d("MyWorkOrdersViewModel", "getData => Kullanıcı bulunamadı")
-                }
-            }
-            .addOnFailureListener { exception ->
-                myWorkOrderLoading.value = false
-                Log.e("MyWorkOrdersViewModel", "getData => Veri çekme hatası: ", exception)
-            }
-
-    }
-*/
     fun getMyOrderWorkList(): MutableLiveData<List<MyWorkOrders>> {
         myWorkOrderLoading.value = false
         return myWorkOrderList

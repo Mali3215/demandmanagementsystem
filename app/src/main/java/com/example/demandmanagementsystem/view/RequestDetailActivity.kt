@@ -181,11 +181,7 @@ class RequestDetailActivity : AppCompatActivity() , AlertDialogListener {
                         ad.setPositiveButton("Talebi Reddet"){ dialogInterface, i ->
 
                             val dataReceived = editTextAlert.text.toString()
-                            viewModel.requestDenied(requestID!!,this@RequestDetailActivity,dataReceived)
-
-                            val intent = Intent(this@RequestDetailActivity, DemandListActivity::class.java)
-                            finish()
-                            startActivity(intent)
+                            viewModel.requestDenied(requestID!!,this@RequestDetailActivity,dataReceived,ad)
 
                         }
                         ad.setNegativeButton("İptal"){ dialogInterface, i ->
@@ -194,9 +190,7 @@ class RequestDetailActivity : AppCompatActivity() , AlertDialogListener {
 
                     }else if(title == util.menuTitleWorkDenied){
                         viewModel.workDenied(requestID!!,this@RequestDetailActivity)
-                        val intent = Intent(this@RequestDetailActivity, DemandListActivity::class.java)
-                        finish()
-                        startActivity(intent)
+
                     }
 
                 true
@@ -204,10 +198,8 @@ class RequestDetailActivity : AppCompatActivity() , AlertDialogListener {
             R.id.workOrderCreate -> {
                 val title = binding.toolbarRequest.menu.findItem(R.id.workOrderCreate).title.toString()
                 if(title == util.menuTitleWorkCompleted){
-                    viewModel.workCompleted(requestID!!,this)
-                    val intent = Intent(this@RequestDetailActivity, DemandListActivity::class.java)
-                    finish()
-                    startActivity(intent)
+                    viewModel.workCompleted(requestID!!,this@RequestDetailActivity)
+
 
 
                 }else if(title == util.menuTitleCreateWorkOrder){

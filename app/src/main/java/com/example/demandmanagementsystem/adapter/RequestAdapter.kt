@@ -1,5 +1,6 @@
 package com.example.demandmanagementsystem.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -16,14 +17,11 @@ import com.example.demandmanagementsystem.view.RequestDetailActivity
 
 
 class RequestAdapter(private val context:Context,
-                     private val requestList: List<Requests>,): RecyclerView.Adapter<RequestAdapter.RequestViewHolder>(){
+                     private val requestList: List<Requests>): RecyclerView.Adapter<RequestAdapter.RequestViewHolder>(){
     private val util = RequestUtil()
-
     class RequestViewHolder(var view: RequestCardBinding): RecyclerView.ViewHolder(view.root){
 
     }
-
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RequestViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view = DataBindingUtil.inflate<RequestCardBinding>(inflater,

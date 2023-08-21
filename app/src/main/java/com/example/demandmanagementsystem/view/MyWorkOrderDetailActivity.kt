@@ -305,18 +305,20 @@ class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
 
             R.id.createWorkOrderDetailMenu -> {
                 viewModel.workOrderData.observe(this) { workOrderData ->
-                    if (workOrderData!!.workOrderRequestId == ""){
-                        val intent = Intent(this@MyWorkOrderDetailActivity,CreateWorkOrderActivity::class.java)
-                        intent.putExtra(util.intentWorkOrderId,workOrderData?.workOrderID)
-                        intent.putExtra(utilRequest.intentRequestId,workOrderData?.workOrderRequestId)
-                        intent.putExtra(utilRequest.intentRequestDetail,2)
-                        startActivity(intent)
-                    }else{
-                        val intent = Intent(this@MyWorkOrderDetailActivity,CreateWorkOrderActivity::class.java)
-                        intent.putExtra(util.intentWorkOrderId,workOrderData?.workOrderID)
-                        intent.putExtra(utilRequest.intentRequestId,workOrderData?.workOrderRequestId)
-                        intent.putExtra(utilRequest.intentRequestDetail,1)
-                        startActivity(intent)
+                    if (workOrderData != null) {
+                        if (workOrderData.workOrderRequestId == ""){
+                            val intent = Intent(this@MyWorkOrderDetailActivity,CreateWorkOrderActivity::class.java)
+                            intent.putExtra(util.intentWorkOrderId,workOrderData.workOrderID)
+                            intent.putExtra(utilRequest.intentRequestId,workOrderData.workOrderRequestId)
+                            intent.putExtra(utilRequest.intentRequestDetail,2)
+                            startActivity(intent)
+                        }else{
+                            val intent = Intent(this@MyWorkOrderDetailActivity,CreateWorkOrderActivity::class.java)
+                            intent.putExtra(util.intentWorkOrderId,workOrderData.workOrderID)
+                            intent.putExtra(utilRequest.intentRequestId,workOrderData.workOrderRequestId)
+                            intent.putExtra(utilRequest.intentRequestDetail,1)
+                            startActivity(intent)
+                        }
                     }
 
 

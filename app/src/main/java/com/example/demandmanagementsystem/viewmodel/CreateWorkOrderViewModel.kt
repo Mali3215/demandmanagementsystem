@@ -20,7 +20,9 @@ import com.example.demandmanagementsystem.model.User
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.CurrentDateTime
 import com.example.demandmanagementsystem.util.WorkOrderUtil
+import com.example.demandmanagementsystem.view.CreateMenuAlertDialog
 import com.example.demandmanagementsystem.view.DemandListActivity
+import com.example.demandmanagementsystem.view.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
@@ -32,6 +34,7 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
     init {
         setupSnapshotListener(application)
     }
+    private val createMenuAlertDialog = CreateMenuAlertDialog()
     private val util = WorkOrderUtil()
     private val currentDateTime = CurrentDateTime()
     private val reference = FirebaseServiceReference()
@@ -64,8 +67,6 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
 
                         val guide = sharedPreferences.getString("token","")
                         val token = snapshot.getString("token")
-                        Log.e("DemandListViewModel", "burada  guide $guide")
-                        Log.e("DemandListViewModel", "burada  token $token")
 
                         if (guide != token){
                             alertDialogListener?.showAlertDialog()
@@ -74,6 +75,9 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
                     }
                 }
         }
+
+
+
 
     }
 
@@ -191,10 +195,7 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
                 completion(resultList)
             }
     }
-    /*
-      arrayRequestInfo.add(workOrderRequestType)
-         arrayRequestInfo.add(workOrderRequestSendDepartmen)
-                    */
+
 
     fun getUsersDataSpinner(callback: (List<User>) -> Unit) {
         val userDepartmentType = sharedPreferences.getString("departmentType","")
@@ -260,43 +261,68 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
         )
 
         reference
-            .workordersCollection()
-            .document()
-            .set(workOrder)
-            .addOnSuccessListener {
-                Log.d("CreateWorkOrderActivity", "onOptionsItemSelected => Firestore'a iş emri başarıyla eklendi.")
-                Toast.makeText(context,"İş Emri Gönderildi", Toast.LENGTH_SHORT).show()
+            .requestsCollection()
+            .document(workOrderRequestId)
+            .get()
+            .addOnSuccessListener {documentSnapshot ->
 
-                val intent = Intent(context, DemandListActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                context.startActivity(intent)
+                val requestCaseListener = documentSnapshot.getString("requestCase").toString()
+
+                if (requestCaseListener == util.assignedToPerson){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu iş Emri Daha Önce Oluşturulmuştur")
+                }else if (requestCaseListener == util.deniedRequest){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu Talep Daha Önce Reddedilmiştir")
+                }else if (requestCaseListener == util.deniedWork){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Reddedilmiştir")
+                }else if (requestCaseListener == util.jobReturn){
+                    createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce İade Edilmiştir")
+                }else {
+                    reference
+                        .workordersCollection()
+                        .document()
+                        .set(workOrder)
+                        .addOnSuccessListener {
+                            Log.d("CreateWorkOrderActivity", "onOptionsItemSelected => Firestore'a iş emri başarıyla eklendi.")
+                            Toast.makeText(context,"İş Emri Gönderildi", Toast.LENGTH_SHORT).show()
+
+                            val intent = Intent(context, DemandListActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            context.startActivity(intent)
 
 
-            }
-            .addOnFailureListener {
-                Toast.makeText(context,"Hata! İş Emri Gönderilemedi", Toast.LENGTH_SHORT).show()
-                Log.e("CreateWorkOrderActivity","")
-            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context,"Hata! İş Emri Gönderilemedi", Toast.LENGTH_SHORT).show()
+                            Log.e("CreateWorkOrderActivity","")
+                        }
 
 
 
-        val updateData = hashMapOf<String, Any>(
-            "requestCase" to "İş Yapacak Kişiye Atandı"
-        )
+                    val updateData = hashMapOf<String, Any>(
+                        "requestCase" to "İş Yapacak Kişiye Atandı"
+                    )
 
-        if (workOrderRequestId != "") {
-            reference
-                .requestsCollection()
-                .document(workOrderRequestId)
-                .update(updateData)
-                .addOnSuccessListener {
-                    Toast.makeText(context, "İş Yapacak Kişiye Atandı!", Toast.LENGTH_SHORT).show()
+                    if (workOrderRequestId != "") {
+                        reference
+                            .requestsCollection()
+                            .document(workOrderRequestId)
+                            .update(updateData)
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "İş Yapacak Kişiye Atandı!", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("CreateWorkOrderActivity","onOptionsItemSelected => requestCollectionRef")
+                                Toast.makeText(context, "Hata! İş Yapacak Kişiye Atanamadı", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
-                .addOnFailureListener { e ->
-                    Log.e("CreateWorkOrderActivity","onOptionsItemSelected => requestCollectionRef")
-                    Toast.makeText(context, "Hata! İş Yapacak Kişiye Atanamadı", Toast.LENGTH_SHORT).show()
-                }
-        }
+
+            }.addOnFailureListener {
+                Log.e("CreateWorkOrderActivity","Daha önce Oluşturulmuştur")
+            }
+
+
+
     }
 
     fun createWorkOrder(context: Context,
@@ -364,14 +390,40 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
             reference
                 .requestsCollection()
                 .document(workOrderRequestId)
-                .update(updateData)
-                .addOnSuccessListener {
-                    Toast.makeText(context, "İş Yapacak Kişiye Atandı!", Toast.LENGTH_SHORT).show()
+                .get()
+                .addOnSuccessListener {documentSnapshot ->
+
+                    val requestCaseListener = documentSnapshot.getString("requestCase").toString()
+
+                    if (requestCaseListener == util.assignedToPerson){
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu iş Emri Daha Önce Oluşturulmuştur")
+                    }else if (requestCaseListener == util.deniedRequest){
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu Talep Daha Önce Reddedilmiştir")
+                    }else if (requestCaseListener == util.deniedWork){
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce Reddedilmiştir")
+                    }else if (requestCaseListener == util.jobReturn){
+                        createMenuAlertDialog.createMenuAlertDialog(context,"Bu İş Daha Önce İade Edilmiştir")
+                    }else {
+                        reference
+                            .requestsCollection()
+                            .document(workOrderRequestId)
+                            .update(updateData)
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "İş Yapacak Kişiye Atandı!", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                Log.e("CreateWorkOrderActivity"," onOptionsItemSelected =< reqCollec")
+                                Toast.makeText(context, "Hata: İş Yapacak Kişiye Atanamadı", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+
+
+
+
+                }.addOnFailureListener {
+                    Log.e("CreateWorkOrderActivity","Daha önce Oluşturulmuştur")
                 }
-                .addOnFailureListener {
-                    Log.e("CreateWorkOrderActivity"," onOptionsItemSelected =< reqCollec")
-                    Toast.makeText(context, "Hata: İş Yapacak Kişiye Atanamadı", Toast.LENGTH_SHORT).show()
-                }
+
         }
     }
 

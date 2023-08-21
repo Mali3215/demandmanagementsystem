@@ -15,6 +15,8 @@ class WorkOrderUtil {
 
     val deniedWork = "İş Reddedildi"
 
+    val deniedRequest = "Talep Reddedildi"
+
     val activityProcessed = "Aktivite İşleme Alındı"
 
     val jobReturn = "İş İade Edildi"

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.adapter.MyWorkOrdersAdapter
+import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.databinding.ActivityCreatedWorkOrderBinding
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.WorkOrderUtil
@@ -145,15 +146,29 @@ class CreatedWorkOrderActivity : AppCompatActivity()
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        if (newText != null) {
+        newText?.let {
             Log.e("onQueryTextChange",newText)
+            viewModel.searchInFirestore(newText)
+
+            viewModel.workOrderSearchFilterList().observe(this@CreatedWorkOrderActivity) { workOrder ->
+                adapter = MyWorkOrdersAdapter(applicationContext, workOrder!!)
+                binding.recyclerViewCreatedWorkOrder.adapter = adapter
+            }
+
         }
         return true
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        if (query != null) {
-            Log.e("onQueryTextSubmit",query)
+        query?.let {
+            Log.e("onQueryTextChange",query)
+            viewModel.searchInFirestore(query)
+
+            viewModel.workOrderSearchFilterList().observe(this@CreatedWorkOrderActivity) { workOrder ->
+
+                adapter = MyWorkOrdersAdapter(applicationContext, workOrder!!)
+                binding.recyclerViewCreatedWorkOrder.adapter = adapter
+            }
         }
         return true
     }

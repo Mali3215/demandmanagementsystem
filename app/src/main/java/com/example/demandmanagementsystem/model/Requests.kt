@@ -11,8 +11,7 @@ data class Requests(
     var requestSendDepartment: String,
     var requestSendID: String,
     var requestSubject: String,
-    var requestType: String,
+    var requestType: String
 
 ) {
-
 }
