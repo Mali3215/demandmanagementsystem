@@ -9,6 +9,7 @@ class RequestUtil {
 
         val waitingForApproval = "Onay Bekliyor"
 
+        val selectedSpinnerItem = "REQUEST_LIST"
         val completed = "Tamamlandı"
 
         val newRequest = "Yeni"

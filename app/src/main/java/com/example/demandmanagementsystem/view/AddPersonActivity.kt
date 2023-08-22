@@ -25,7 +25,6 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
     private lateinit var viewModel: AddPersonViewModel
     private val departmentTypeList = ArrayList<String>()
     private lateinit  var spinnerDataAdapter: ArrayAdapter<String>
-
     private val typeOfStaffList = ArrayList<String>()
     private lateinit  var typeOfStaffAdapter: ArrayAdapter<String>
 

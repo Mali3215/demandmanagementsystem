@@ -44,7 +44,7 @@ class CreatedWorkOrderActivity : AppCompatActivity()
         binding.recyclerViewCreatedWorkOrder.layoutManager =
             LinearLayoutManager(this@CreatedWorkOrderActivity)
 
-        binding.toolbarCreatedWorkOrder.title = "Work Order Created"
+        binding.toolbarCreatedWorkOrder.title = "WorkOrderCreated"
         binding.toolbarCreatedWorkOrder.visibility = View.VISIBLE
         setSupportActionBar(binding.toolbarCreatedWorkOrder)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

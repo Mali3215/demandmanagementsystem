@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">İSU TALEP YÖNETİM SİSTEMİ</string>
+    <string name="notification_icon_description">Atanan İşlerim</string>
 </resources>

@@ -4,13 +4,19 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.util.TypedValue
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.adapter.RequestAdapter
+import com.example.demandmanagementsystem.databinding.ActivityDemandListBinding
 import com.example.demandmanagementsystem.model.Requests
+import com.example.demandmanagementsystem.model.User
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
+import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.util.SortListByDate
 import com.example.demandmanagementsystem.view.AddPersonActivity
 import com.example.demandmanagementsystem.view.CreateRequestActivity
@@ -24,9 +30,10 @@ import java.util.Locale
 class DemandListViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
-        setupSnapshotListener(application)
+        val reference = FirebaseServiceReference()
+        setupSnapshotListener(application,reference)
     }
-    private lateinit var adapter: RequestAdapter
+
     val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
 
     private val reference = FirebaseServiceReference()
@@ -54,13 +61,64 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
 
     private var alertDialogListener: AlertDialogListener? = null
 
+    private val requestSearchFilterList: MutableLiveData<List<Requests>> = MutableLiveData()
+
+
     fun setAlertDialogListener(listener: AlertDialogListener) {
         alertDialogListener = listener
     }
 
-    private fun setupSnapshotListener(application: Application) {
+    fun notificationListener(context: Context,binding:ActivityDemandListBinding){
+        val sharedPreferences = context.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
+        val uuid = sharedPreferences.getString("userId","")
+        val util = RequestUtil()
+        if (uuid != null){
 
-        val reference = FirebaseServiceReference()
+            reference
+                .workordersCollection()
+                .whereEqualTo("selectedWorkOrderUserId", uuid)
+                .whereEqualTo("workOrderCase",util.assignedToPerson)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val numberOfFilteredDocuments = querySnapshot.size()
+
+                    if (numberOfFilteredDocuments > 0 && numberOfFilteredDocuments > 9) {
+                        val marginInDp = 15
+                        val marginInPx = TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            marginInDp.toFloat(),
+                            context.resources.displayMetrics
+                        ).toInt()
+
+                        binding.notificationCounter.layoutParams = (binding.notificationCounter.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                            marginStart = marginInPx
+                        }
+                        binding.notificationCounter.visibility = View.VISIBLE
+                        binding.notificationCounter.text = "9+"
+                    }else if (numberOfFilteredDocuments > 0) {
+
+                        binding.notificationCounter.visibility = View.VISIBLE
+                        binding.notificationCounter.text = numberOfFilteredDocuments.toString()
+                    } else {
+                        binding.notificationCounter.visibility = View.GONE
+                        binding.circleImageView.visibility = View.GONE
+                    }
+
+
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firestore", "Error getting documents: ", exception)
+                }
+
+        }
+
+
+
+    }
+
+    private fun setupSnapshotListener(application: Application,reference: FirebaseServiceReference) {
+
+
         val sharedPreferences = application.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
         val uuid = sharedPreferences.getString("userId","")
         if (uuid != null) {
@@ -137,7 +195,6 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
                 }
         }
     }
-    private val requestSearchFilterList: MutableLiveData<List<Requests>> = MutableLiveData()
     fun searchInFirestore(text: String) {
 
         val filteredList = mutableListOf<Requests>()
@@ -171,6 +228,7 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
                 Log.e("Search", "Error getting documents: ", exception)
             }
     }
+
     // ViewModel içerisinde
 
     fun requestSearchFilterList(): MutableLiveData<List<Requests>>{

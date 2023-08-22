@@ -1,20 +1,26 @@
 package com.example.demandmanagementsystem.view
 
 
+
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.appcompat.widget.SearchView
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
+import androidx.core.view.marginStart
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.demandmanagementsystem.R
@@ -24,6 +30,7 @@ import com.example.demandmanagementsystem.databinding.ActivityDemandListBinding
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
+
 
 class DemandListActivity : AppCompatActivity()
     ,SearchView.OnQueryTextListener, AlertDialogListener{
@@ -39,20 +46,6 @@ class DemandListActivity : AppCompatActivity()
         binding = ActivityDemandListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val sp = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
-        Log.e("DemandListActivitys","guide "+sp.getString("token", "Boş"))
-        Log.e("DemandListActivitys","tcIdentityNo "+sp.getString("tcIdentityNo", "Boş"))
-        Log.e("DemandListActivitys","email "+sp.getString("email", "Boş"))
-        Log.e("DemandListActivitys","name "+sp.getString("name", "Boş"))
-        Log.e("DemandListActivitys","password "+sp.getString("password", "Boş"))
-        Log.e("DemandListActivitys","telNo "+sp.getString("telNo", "Boş"))
-        Log.e("DemandListActivitys","authorityType "+sp.getString("authorityType", "Boş"))
-        Log.e("DemandListActivitys","departmentType "+sp.getString("departmentType", "Boş"))
-
-
-        binding.recyclerViewDemandList.setHasFixedSize(true)
-        binding.recyclerViewDemandList.layoutManager = LinearLayoutManager(this@DemandListActivity)
-
         binding.toolbar.title = "Başlık"
         binding.toolbar.visibility = View.VISIBLE
         setSupportActionBar(binding.toolbar)
@@ -61,12 +54,27 @@ class DemandListActivity : AppCompatActivity()
         val imageView = baslik.findViewById(R.id.imageProfile) as ImageView
         imageView.setImageResource(R.drawable.batman)
 
+
         val toggle = ActionBarDrawerToggle(this, binding.drawer, binding.toolbar, 0, 0)
         binding.drawer.addDrawerListener(toggle)
         toggle.syncState()
 
         viewModel = ViewModelProvider(this@DemandListActivity).get(DemandListViewModel::class.java)
         viewModel.setAlertDialogListener(this)
+
+        binding.recyclerViewDemandList.setHasFixedSize(true)
+        binding.recyclerViewDemandList.layoutManager = LinearLayoutManager(this@DemandListActivity)
+
+
+
+
+        viewModel.notificationListener(this@DemandListActivity,binding)
+
+        binding.notificationImageView.setOnClickListener {
+            val intent = Intent(this@DemandListActivity,MyWorkOrdersActivity::class.java)
+            intent.putExtra(util.selectedSpinnerItem,1)
+            startActivity(intent)
+        }
 
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             val itemId = menuItem.itemId
@@ -95,6 +103,7 @@ class DemandListActivity : AppCompatActivity()
             department.text = departmentType
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.notificationListener(this@DemandListActivity,binding)
             binding.spinnerFilter.setSelection(0)
             viewModel.fetchData()
             viewModel.getData()
@@ -178,6 +187,7 @@ class DemandListActivity : AppCompatActivity()
         return when (item.itemId) {
             R.id.refresh -> {
                 binding.spinnerFilter.setSelection(0)
+                viewModel.notificationListener(this@DemandListActivity,binding)
                 viewModel.fetchData()
                 viewModel.getData()
                 true
@@ -191,17 +201,13 @@ class DemandListActivity : AppCompatActivity()
         val item = menu.findItem(R.id.search_demand)
         val searchView = item.actionView as SearchView
         searchView.setOnQueryTextListener(this@DemandListActivity)
-
-
         binding.toolbar.menu.findItem(R.id.add_action).isVisible = false
         return super.onCreateOptionsMenu(menu)
     }
 
-
-
     override fun onQueryTextChange(newText: String?): Boolean {
         newText?.let {
-            Log.e("onQueryTextChange",newText)
+
             viewModel.searchInFirestore(newText)
 
             viewModel.requestSearchFilterList().observe(this@DemandListActivity) { requests ->
@@ -215,7 +221,7 @@ class DemandListActivity : AppCompatActivity()
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         query?.let {
-            Log.e("onQueryTextChange",query)
+
             viewModel.searchInFirestore(query)
 
             viewModel.requestSearchFilterList().observe(this@DemandListActivity) { requests ->
