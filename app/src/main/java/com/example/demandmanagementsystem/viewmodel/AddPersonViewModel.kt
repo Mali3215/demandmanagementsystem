@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.demandmanagementsystem.adapter.AlertDialogListener
+import com.example.demandmanagementsystem.model.User
 import com.example.demandmanagementsystem.model.UserData
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.view.DemandListActivity
@@ -117,10 +118,8 @@ class AddPersonViewModel(application: Application) : AndroidViewModel(applicatio
                         .document(userId)
                         .set(userMap)
                         .addOnSuccessListener {
-
                             reference.getFirebaseAuth().signOut()
 
-                           // getUser(user, context)
                             getUser(context)
 
                            Toast.makeText(
@@ -162,42 +161,43 @@ class AddPersonViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
     }
-}
-/*
-  fun getUser(userId: String, context: Context){
-      val email = sharedPreferences.getString("email","Boş").toString()
-      val password = sharedPreferences.getString("password","Boş").toString()
 
 
-    reference.usersCollon()
-        .document(userId)
-        .get()
-        .addOnSuccessListener { documentSnapshot ->
+    fun userController(context: Context,email: String,callback: (Boolean) -> Unit){
 
-            val email = documentSnapshot.getString("email").toString()
-            val password = documentSnapshot.getString("tcIdentityNo")?.substring(0, 6)
-
-            if (password != null) {
-                reference.getFirebaseAuth().signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-
-                        val intent = Intent(context,
-                            DemandListActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-
-                        context.startActivity(intent)
+        reference
+            .getFirebaseAuth()
+            .fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val signInMethods = task.result?.signInMethods
+                    if (signInMethods.isNullOrEmpty()) {
+                        // Bu e-posta adresiyle kayıtlı kullanıcı yok
+                        // Kullanıcıyı eklemek veya ilgili işlemleri gerçekleştirmek için gerekli adımları yapabilirsiniz
+                        callback.invoke(true)
+                    } else {
+                        // Bu e-posta adresiyle kayıtlı kullanıcı var
+                        // Gerekirse kullanıcıya bir hata mesajı gösterebilirsiniz
+                        callback.invoke(false)
                     }
+                } else {
+                    val exception = task.exception
+                    Log.e("AddPersonViewModel","userController => Hata: $exception")
 
-                }.addOnFailureListener { exception ->
-                    Log.e("AddPersonViewModel","getUser => ${exception.localizedMessage}")
+
                 }
+            }.addOnFailureListener {
+                Toast.makeText(context,"Tekrar Deneyiniz",Toast.LENGTH_SHORT).show()
+                Log.e("AddPersonViewModel","userController => Hata: $it")
+                val intent = Intent(context,
+                    DemandListActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                context.startActivity(intent)
             }
 
 
-        }.addOnFailureListener {
-            Log.e("AddPersonViewModel","getUser => ${it.localizedMessage}")
-        }
+    }
 
-  }
 
-*/
+
+}

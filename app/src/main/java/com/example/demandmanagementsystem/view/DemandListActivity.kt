@@ -65,9 +65,6 @@ class DemandListActivity : AppCompatActivity()
         binding.recyclerViewDemandList.setHasFixedSize(true)
         binding.recyclerViewDemandList.layoutManager = LinearLayoutManager(this@DemandListActivity)
 
-
-
-
         viewModel.notificationListener(this@DemandListActivity,binding)
 
         binding.notificationImageView.setOnClickListener {

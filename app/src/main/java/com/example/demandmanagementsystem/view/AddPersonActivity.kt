@@ -1,13 +1,18 @@
 package com.example.demandmanagementsystem.view
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.telephony.PhoneNumberFormattingTextWatcher
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -18,6 +23,7 @@ import com.example.demandmanagementsystem.databinding.ActivityAddPersonBinding
 import com.example.demandmanagementsystem.model.UserData
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.viewmodel.AddPersonViewModel
+import com.google.android.material.textfield.TextInputEditText
 
 class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
     private val reference= FirebaseServiceReference()
@@ -34,8 +40,8 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
             binding = DataBindingUtil.setContentView(this@AddPersonActivity
                 , R.layout.activity_add_person)
 
+           telNoController()
             viewModel = ViewModelProvider(this)[AddPersonViewModel::class.java]
-
             binding.toolbarAddPerson.title = "Kullanıcı Tanımları"
             setSupportActionBar(binding.toolbarAddPerson)
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -92,6 +98,73 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
             viewModel.typeOfStaffList
 
         }
+    fun telNoController(){
+
+        binding.textAddPersonTC.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Bu işlevi kullanmıyoruz
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Bu işlevi kullanmıyoruz
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                val input = s.toString().replace(" ", "")
+                if (input.length > 11) {
+                    // 11 haneden fazla girişi engelle
+                    s?.delete(s.length - 1, s.length)
+                }
+            }
+        })
+
+        val phoneNumberEditText = findViewById<TextInputEditText>(R.id.textAddPersonTelNo)
+
+        phoneNumberEditText.addTextChangedListener(object : TextWatcher {
+            private var isFormatting: Boolean = false
+            private var deleting: Boolean = false
+            private val formatPattern = "# (###) ### ## ##"
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Bu işlevi kullanmıyoruz
+                deleting = count > after
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Bu işlevi kullanmıyoruz
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (isFormatting) {
+                    isFormatting = false
+                    return
+                }
+
+                val unformattedText = s?.toString()?.replace("[^\\d]".toRegex(), "") ?: ""
+                val formattedText = StringBuilder()
+                var charIndex = 0
+
+                for (i in formatPattern.indices) {
+                    if (charIndex >= unformattedText.length) {
+                        break
+                    }
+
+                    val formatChar = formatPattern[i]
+                    if (formatChar == '#') {
+                        formattedText.append(unformattedText[charIndex])
+                        charIndex++
+                    } else {
+                        formattedText.append(formatChar)
+                    }
+                }
+
+                isFormatting = true
+                phoneNumberEditText.setText(formattedText)
+                phoneNumberEditText.setSelection(formattedText.length)
+            }
+        })
+
+    }
 
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -109,29 +182,82 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
             R.id.workOrderCreate -> {
 
                 val alerDialog = AlertDialog.Builder(this@AddPersonActivity)
+                val tcIdentityNo = binding.textAddPersonTC.text.toString()
+                val email = binding.textAddPersonEmail.text.toString()
 
-                alerDialog.setMessage("Kullanıcı Eklensin mi?")
-                alerDialog.setPositiveButton("Evet"){ dialogInterface, i ->
+                val name = binding.textAddPersonName.text.toString()
+                val telNo = binding.textAddPersonTelNo.text.toString()
+                val authorityType = binding.textAddPersonAuthorizotionType.text.toString()
+                val departmentType = binding.textAddPersonDepartmentType.text.toString()
 
-                    val tcIdentityNo = binding.textAddPersonTC.text.toString()
-                    val email = binding.textAddPersonEmail.text.toString()
-                    val password = tcIdentityNo.substring(0, 6)
-                    val name = binding.textAddPersonName.text.toString()
-                    val telNo = binding.textAddPersonTelNo.text.toString()
-                    val authorityType = binding.textAddPersonAuthorizotionType.text.toString()
-                    val departmentType = binding.textAddPersonDepartmentType.text.toString()
+                if((tcIdentityNo == "" ) || (email == "") || (name == "") || (telNo == "") || (authorityType == "") || (departmentType == "")){
+                    alerDialog.setTitle("Kullanıcı Eklenmedi")
+                    alerDialog.setMessage("Gerekli Alanları Doldurunuz")
+                    alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
-                    val userData = UserData(tcIdentityNo, email, name,password, telNo, authorityType, departmentType)
+                    }
 
-                    viewModel.addUser(userData,this@AddPersonActivity)
+                    alerDialog.setNegativeButton("Ana Sayfa"){ dialogInterface, i ->
+                        val intent = Intent(this@AddPersonActivity,
+                            DemandListActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        startActivity(intent)
+                    }
+                    alerDialog.create().show()
+                }else{
 
+                    viewModel.userController(this@AddPersonActivity,email){controll ->
+
+                        if (controll){
+                            if(tcIdentityNo.length < 11){
+                                alerDialog.setMessage("T.C. Kimlik Numaranız 11 Haneden Az Olamaz")
+                                alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
+
+                                }
+                                alerDialog.create().show()
+                            }else if (telNo.length < 11){
+                                alerDialog.setMessage("Telefon Numaranız 11 Haneden Az Olamaz")
+                                alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
+
+                                }
+                                alerDialog.create().show()
+                            }else{
+                                alerDialog.setMessage("Kullanıcı Eklensin mi?")
+                                alerDialog.setPositiveButton("Evet"){ dialogInterface, i ->
+
+                                    val password = tcIdentityNo.substring(0, 6)
+                                    val userData = UserData(tcIdentityNo, email, name,password, telNo, authorityType, departmentType)
+                                    viewModel.addUser(userData,this@AddPersonActivity)
+
+                                }
+
+                                alerDialog.setNegativeButton("Hayır"){ dialogInterface, i ->
+
+                                }
+
+                                alerDialog.create().show()
+                            }
+
+
+                        }else{
+                            alerDialog.setTitle("Kullanıcı Eklenmedi")
+                            alerDialog.setMessage("Bu Kullanıcı Kayıtlıdır")
+                            alerDialog.setPositiveButton("Ana Sayfa"){ dialogInterface, i ->
+                                val intent = Intent(this@AddPersonActivity,
+                                    DemandListActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                startActivity(intent)
+                            }
+                            alerDialog.setNegativeButton("Tekrar Dene"){ dialogInterface, i ->
+                                val intent = Intent(this@AddPersonActivity,
+                                    AddPersonActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                startActivity(intent)
+                            }
+                            alerDialog.create().show()
+                        }
+                    }
                 }
-
-                alerDialog.setNegativeButton("Hayır"){ dialogInterface, i ->
-
-                }
-
-                alerDialog.create().show()
                 true
             }
             android.R.id.home -> {
@@ -149,6 +275,5 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
         val sharedPreferences = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
         reference.sigInOut(sharedPreferences, this@AddPersonActivity)
     }
-
 
 }

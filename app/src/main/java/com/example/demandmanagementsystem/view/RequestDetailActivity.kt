@@ -181,7 +181,7 @@ class RequestDetailActivity : AppCompatActivity() , AlertDialogListener {
                         ad.setPositiveButton("Talebi Reddet"){ dialogInterface, i ->
 
                             val dataReceived = editTextAlert.text.toString()
-                            viewModel.requestDenied(requestID!!,this@RequestDetailActivity,dataReceived,ad)
+                            viewModel.requestDenied(requestID!!,this@RequestDetailActivity,dataReceived)
 
                         }
                         ad.setNegativeButton("İptal"){ dialogInterface, i ->

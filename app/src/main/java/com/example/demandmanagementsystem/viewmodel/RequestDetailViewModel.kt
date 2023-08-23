@@ -198,7 +198,7 @@ class RequestDetailViewModel(application: Application) : AndroidViewModel(applic
             }
     }
 
-    fun requestDenied(requestID: String, context: Context,dataReceived: String,ad: AlertDialog.Builder){
+    fun requestDenied(requestID: String, context: Context,dataReceived: String){
 
         val updateData = hashMapOf<String, Any>(
             "requestCase" to util.deniedRequest,
