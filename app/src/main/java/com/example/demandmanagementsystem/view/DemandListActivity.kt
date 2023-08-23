@@ -84,6 +84,7 @@ class DemandListActivity : AppCompatActivity()
                 R.id.addPerson -> viewModel.onAddPersonClick(this@DemandListActivity)
                 R.id.myWorkOrders -> viewModel.onMyWorkOrders(this@DemandListActivity)
                 R.id.createdWorkOrder -> viewModel.onCreatedWorkOrdersClick(this@DemandListActivity)
+                R.id.profileUserInfo -> viewModel.onProfileUserInfoClick(this@DemandListActivity)
             }
 
             binding.drawer.closeDrawer(GravityCompat.START)
@@ -101,6 +102,7 @@ class DemandListActivity : AppCompatActivity()
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.notificationListener(this@DemandListActivity,binding)
+            binding.drawer.closeDrawer(GravityCompat.START)
             binding.spinnerFilter.setSelection(0)
             viewModel.fetchData()
             viewModel.getData()

@@ -25,6 +25,7 @@ import com.example.demandmanagementsystem.view.CreatedRequestsActivity
 import com.example.demandmanagementsystem.view.CreatedWorkOrderActivity
 import com.example.demandmanagementsystem.view.MainActivity
 import com.example.demandmanagementsystem.view.MyWorkOrdersActivity
+import com.example.demandmanagementsystem.view.UserProfileInfoActivity
 import java.util.Locale
 
 class DemandListViewModel(application: Application) : AndroidViewModel(application) {
@@ -322,6 +323,11 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
 
     fun onCreatedWorkOrdersClick(context: Context) {
         val intent = Intent(context, CreatedWorkOrderActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun onProfileUserInfoClick(context: Context) {
+        val intent = Intent(context, UserProfileInfoActivity::class.java)
         context.startActivity(intent)
     }
 

@@ -55,15 +55,9 @@ class RequestDetailViewModel(application: Application) : AndroidViewModel(applic
                         Log.e("DemandListViewModel", "SnapshotListener error", e)
                         return@addSnapshotListener
                     }
-
                     if (snapshot != null) {
-
-
                         val guide = sharedPreferences.getString("token","")
                         val token = snapshot.getString("token")
-                        Log.e("DemandListViewModel", "burada  guide $guide")
-                        Log.e("DemandListViewModel", "burada  token $token")
-
                         if (guide != token){
                             alertDialogListener?.showAlertDialog()
                         }

@@ -15,6 +15,9 @@
         android:theme="@style/Theme.Demandmanagementsystem"
         tools:targetApi="31">
         <activity
+            android:name=".view.UserProfileInfoActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.CreatedWorkOrderActivity"
             android:exported="false" />
         <activity

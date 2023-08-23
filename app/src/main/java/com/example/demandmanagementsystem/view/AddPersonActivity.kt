@@ -214,7 +214,7 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
 
                                 }
                                 alerDialog.create().show()
-                            }else if (telNo.length < 11){
+                            }else if (telNo.length < 17){
                                 alerDialog.setMessage("Telefon Numaranız 11 Haneden Az Olamaz")
                                 alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
