@@ -240,8 +240,6 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
         val workOrderType = binding.textWorkOrderType.text.toString()
         val createWorkOrderId = sharedPreferences.getString("userId",null)
 
-
-
         val workOrder = hashMapOf(
             "workOrderRequestId" to workOrderRequestId,
             "workOrderPersonToDoJob" to workOrderPersonToDoJob,

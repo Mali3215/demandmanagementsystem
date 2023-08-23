@@ -184,7 +184,6 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
                 val alerDialog = AlertDialog.Builder(this@AddPersonActivity)
                 val tcIdentityNo = binding.textAddPersonTC.text.toString()
                 val email = binding.textAddPersonEmail.text.toString()
-
                 val name = binding.textAddPersonName.text.toString()
                 val telNo = binding.textAddPersonTelNo.text.toString()
                 val authorityType = binding.textAddPersonAuthorizotionType.text.toString()
@@ -192,7 +191,7 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
 
                 if((tcIdentityNo == "" ) || (email == "") || (name == "") || (telNo == "") || (authorityType == "") || (departmentType == "")){
                     alerDialog.setTitle("Kullanıcı Eklenmedi")
-                    alerDialog.setMessage("Gerekli Alanları Doldurunuz")
+                    alerDialog.setMessage("Boş Alanları Doldurunuz")
                     alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
                     }

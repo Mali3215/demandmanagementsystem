@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -246,19 +247,28 @@ class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.completed -> {
-
+                val alerDialog = AlertDialog.Builder(this@MyWorkOrderDetailActivity)
                 viewModel.workOrderData.observe(this) {workOrder ->
 
                     if (workOrder != null) {
-                        if ((workOrder.workOrderDescription.toString() == "") && (workOrder.workOrderSubject.toString() == "")){
+                        if (binding.textWorkOrderSubDescription.text.toString() == ""){
+                            alerDialog.setMessage("Lütfen İş Emri Sonuç Açıklamasını Giriniz")
+                            alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
-                            viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
-                                , util.tempKindRequest,binding)
-                        } else {
+                            }
+                            alerDialog.create().show()
+                        }else{
+                            if ((workOrder.workOrderDescription.toString() == "") && (workOrder.workOrderSubject.toString() == "")){
 
-                            viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
-                                , util.tempKindWorkOrder,binding)
+                                viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
+                                    , util.tempKindRequest,binding)
+                            } else {
+
+                                viewModel.menuComletedUpdate(this@MyWorkOrderDetailActivity
+                                    , util.tempKindWorkOrder,binding)
+                            }
                         }
+
 
                     }
 

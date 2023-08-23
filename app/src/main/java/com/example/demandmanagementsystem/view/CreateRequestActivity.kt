@@ -1,8 +1,12 @@
 package com.example.demandmanagementsystem.view
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,6 +22,7 @@ import com.example.demandmanagementsystem.databinding.ActivityCreateRequestBindi
 import com.example.demandmanagementsystem.model.CreateRequest
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.viewmodel.CreateRequestViewModel
+import com.google.android.material.textfield.TextInputEditText
 
 class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
     private val reference= FirebaseServiceReference()
@@ -38,7 +43,7 @@ class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
         setSupportActionBar(binding.toolbarRequest)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         viewModel = ViewModelProvider(this).get(CreateRequestViewModel::class.java)
-
+        telNoController()
         viewModel.requestFill(binding)
 
         viewModel.departmentTypeList.observe(this, Observer { departmentList ->
@@ -163,38 +168,62 @@ class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
             R.id.workOrderCreate -> {
 
                 val alerDialog = AlertDialog.Builder(this@CreateRequestActivity)
+                val requestType = binding.textRequestType.text.toString()
+                val requestName = binding.textRequestUserName.text.toString()
+                val requestDepartment = binding.textRequestDepartment.text.toString()
+                val requestSendDepartment = binding.textRequestSendDepartment.text.toString()
+                val requestSubject = binding.textRequestSubject.text.toString()
+                val requestDescription = binding.textRequestDescription.text.toString()
+                val requestContactNumber = binding.textRequestContactNumber.text.toString()
+                val telNoLenght = requestContactNumber.trim().length
+                Log.e("buradayım","$telNoLenght")
+                if ((requestType == "") || (requestSendDepartment == "") || (requestSubject == "")|| (requestDescription == "")|| (requestContactNumber == "")){
+                    alerDialog.setTitle("Talep Oluşturulamadı")
+                    alerDialog.setMessage("Boş Alanları Doldurunuz")
+                    alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
-                alerDialog.setMessage("Talep Oluşturulsun Mu?")
-                alerDialog.setPositiveButton("Evet"){ dialogInterface, i ->
+                    }
+                    alerDialog.setNegativeButton("Ana Sayfa"){ dialogInterface, i ->
+                        val intent = Intent(this@CreateRequestActivity,
+                            DemandListActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        startActivity(intent)
+                    }
+                    alerDialog.create().show()
+                }else{
+                        Log.e("buradayım","${requestContactNumber.length}")
+                    if (telNoLenght < 17 ){
+                        alerDialog.setMessage("Telefon Numaranız 11 Haneden Az Olamaz")
+                        alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
+                        }
+                        alerDialog.create().show()
+                    }else{
+                        alerDialog.setMessage("Talep Oluşturulsun Mu?")
+                        alerDialog.setPositiveButton("Evet"){ dialogInterface, i ->
 
-                    val requestType = binding.textRequestType.text.toString()
-                    val requestName = binding.textRequestUserName.text.toString()
-                    val requestDepartment = binding.textRequestDepartment.text.toString()
-                    val requestSendDepartment = binding.textRequestSendDepartment.text.toString()
-                    val requestSubject = binding.textRequestSubject.text.toString()
-                    val requestDescription = binding.textRequestDescription.text.toString()
-                    val requestContactNumber = binding.textRequestContactNumber.text.toString()
+                            viewModel.createRequest(
+                                CreateRequest(
+                                    requestType,
+                                    requestName,
+                                    requestDepartment,
+                                    requestSendDepartment,
+                                    requestSubject,
+                                    requestDescription,
+                                    requestContactNumber
+                                ),this@CreateRequestActivity
+                            )
 
-                    viewModel.createRequest(
-                        CreateRequest(
-                            requestType,
-                            requestName,
-                            requestDepartment,
-                            requestSendDepartment,
-                            requestSubject,
-                            requestDescription,
-                            requestContactNumber
-                        ),this@CreateRequestActivity
-                    )
+                        }
+
+                        alerDialog.setNegativeButton("Hayır"){ dialogInterface, i ->
+
+                        }
+
+                        alerDialog.create().show()
+                    }
 
                 }
-
-                alerDialog.setNegativeButton("Hayır"){ dialogInterface, i ->
-
-                }
-
-                alerDialog.create().show()
 
                 true
             }
@@ -210,7 +239,52 @@ class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
         val sharedPreferences = getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
         reference.sigInOut(sharedPreferences, this@CreateRequestActivity)
     }
+    fun telNoController(){
+        binding.textRequestContactNumber.addTextChangedListener(object : TextWatcher {
+            private var isFormatting: Boolean = false
+            private var deleting: Boolean = false
+            private val formatPattern = "# (###) ### ## ##"
 
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Bu işlevi kullanmıyoruz
+                deleting = count > after
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Bu işlevi kullanmıyoruz
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (isFormatting) {
+                    isFormatting = false
+                    return
+                }
+
+                val unformattedText = s?.toString()?.replace("[^\\d]".toRegex(), "") ?: ""
+                val formattedText = StringBuilder()
+                var charIndex = 0
+
+                for (i in formatPattern.indices) {
+                    if (charIndex >= unformattedText.length) {
+                        break
+                    }
+
+                    val formatChar = formatPattern[i]
+                    if (formatChar == '#') {
+                        formattedText.append(unformattedText[charIndex])
+                        charIndex++
+                    } else {
+                        formattedText.append(formatChar)
+                    }
+                }
+
+                isFormatting = true
+                binding.textRequestContactNumber.setText(formattedText)
+                binding.textRequestContactNumber.setSelection(formattedText.length)
+            }
+        })
+
+    }
 
 
 }

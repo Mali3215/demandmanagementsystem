@@ -1,8 +1,4 @@
 package com.example.demandmanagementsystem.model
-
-import android.telephony.PhoneNumberFormattingTextWatcher
-import android.text.TextWatcher
-
 data class UserData(
     val tcIdentityNo: String = "",
     val email: String = "",

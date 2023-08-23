@@ -236,31 +236,41 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
             }
             R.id.workOrderCreate -> {
                 val alerDialog = AlertDialog.Builder(this@CreateWorkOrderActivity)
+                Log.e("burası","$selectedUserId")
+                selectedUserId?.let {
+                    if (it == "0"){
+                        alerDialog.setMessage("İşi Yapacak Personeli Seçiniz")
+                        alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
-                alerDialog.setMessage("İş Emri Oluşturulsun Mu?")
-                alerDialog.setPositiveButton("Evet"){ dialogInterface, i ->
-
-                    val incomingData = intent.getStringExtra(utilWorkOrder.intentWorkOrderId)
-
-                    if (incomingData == null){
-
-                        selectedUserId?.let {
-                            viewModel.requestCreateWorkOrder(this@CreateWorkOrderActivity,binding,
-                                it
-                            )
                         }
+                        alerDialog.create().show()
+                    }else if(binding.textWorkOrderAssetInformation.text.toString() == ""){
+                        alerDialog.setMessage("Lütfen Boş Alanları Doldurunuz")
+                        alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
-                    }else {
-                        selectedUserId?.let {
-                            viewModel.createWorkOrder(this@CreateWorkOrderActivity,binding,
-                                it,incomingData
-                            )
                         }
+                        alerDialog.create().show()
+                    }else{
+                        alerDialog.setMessage("İş Emri Oluşturulsun Mu?")
+                        alerDialog.setPositiveButton("Evet"){ dialogInterface, i ->
+
+                            val incomingData = intent.getStringExtra(utilWorkOrder.intentWorkOrderId)
+
+                            if (incomingData == null){
+                                viewModel.requestCreateWorkOrder(this@CreateWorkOrderActivity,binding, it)
+                            }else {
+                                viewModel.createWorkOrder(this@CreateWorkOrderActivity,binding, it,incomingData)
+                            }
+                        }
+                        alerDialog.setNegativeButton("Hayır"){ dialogInterface, i ->
+                        }
+                        alerDialog.create().show()
                     }
                 }
-                alerDialog.setNegativeButton("Hayır"){ dialogInterface, i ->
-                }
-                alerDialog.create().show()
+
+
+
+
                 true
             }
             android.R.id.home -> {
