@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +14,7 @@ import com.example.demandmanagementsystem.model.RequestData
 import com.example.demandmanagementsystem.model.UserData
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.view.DemandListActivity
+import com.example.demandmanagementsystem.view.MainActivity
 import com.google.firebase.auth.EmailAuthProvider
 import java.util.UUID
 
@@ -37,7 +39,7 @@ class UserProfileInfoViewModel(application: Application) : AndroidViewModel(appl
 
     }
 
-    fun resetPassword(newPassword: String,context: Context){
+    fun resetPassword(newPassword: String,context: Context,viewModelDemand: DemandListViewModel){
 
         val email = sharedPreferences.getString("email", "")
         val password = sharedPreferences.getString("password", "")
@@ -59,19 +61,37 @@ class UserProfileInfoViewModel(application: Application) : AndroidViewModel(appl
                                         // Şifre güncelleme başarılı
                                         Toast.makeText(context, "Şifre başarıyla güncellendi.", Toast.LENGTH_SHORT).show()
                                         reference.getFirebaseAuth().signOut()
+                                        val alertDialog = AlertDialog.Builder(context)
+
+                                        alertDialog.setTitle("Şifre Değişti")
+                                        alertDialog.setMessage("Lütfen Giriş Yapınız")
+                                        alertDialog.setPositiveButton("Giriş Yap"){ dialogInterface, i ->
+                                            viewModelDemand.onLogOutClick(context)
+                                            val intent = Intent(context, MainActivity::class.java)
+                                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                            context.startActivity(intent)
+                                        }
+
+                                        alertDialog.setNegativeButton("Çıkış"){ dialogInterface, i ->
+                                            val intent = Intent(Intent.ACTION_MAIN)
+                                            intent.addCategory(Intent.CATEGORY_HOME)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            context.startActivity(intent)
+                                        }
+
+                                        alertDialog.create().show()
                                     } else {
                                         // Şifre güncelleme başarısız
                                         Toast.makeText(context, "Şifre güncelleme başarısız. Hata: ${updateTask.exception?.message}", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                         }
-                        }
+                    }
                 }
-
-
 
         }
 
     }
+
 
 }

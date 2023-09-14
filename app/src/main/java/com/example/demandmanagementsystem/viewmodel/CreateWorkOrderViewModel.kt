@@ -227,17 +227,17 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
         val selectedWorkOrderUserId = selectedUserId
         val workOrderRequestId = binding.textWorkOrderRequestId.text.toString()
         val workOrderPersonToDoJob = binding.textWorkOrderPersonToDoJob.text.toString()
-        val workOrdercreateUserName = binding.textWorkOrderCreateUserName.text.toString()
+        val workOrdercreateUserName = binding.spinnerCreateWorkOrder.selectedItem.toString()
         val workOrderDepartment = binding.textWorkOrderDepartment.text.toString()
         val workOrderRequestSubject = binding.textWorkOrderRequestSubject.text.toString()
         val workOrderRequestDescription = binding.textWorkOrderRequestDescription.text.toString()
-        val workOrderSubject = binding.textWorkOrderSubject.text.toString()
+        val workOrderSubject = binding.spinnerCreateWorkOrderRequestSubject.selectedItem
         val workOrderDescription = binding.textWorkOrderDescription.text.toString()
         val workOrderAssetInformation = binding.textWorkOrderAssetInformation.text.toString()
         val workOrderCase = util.assignedToPerson
         val workOrderDate = currentDateTime.getCurrentDateTime()
         val workOrderRequestType =binding.textWorkOrderRequestType.text.toString()
-        val workOrderType = binding.textWorkOrderType.text.toString()
+        val workOrderType = binding.spinnerWorkOrderType.selectedItem
         val createWorkOrderId = sharedPreferences.getString("userId",null)
 
         val workOrder = hashMapOf(
@@ -326,22 +326,22 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
     fun createWorkOrder(context: Context,
                         binding: ActivityCreateWorkOrderBinding,
                         selectedUserId: String,
-                        incomingData: String){
+                        ){
 
         val selectedWorkOrderUserId = selectedUserId
         val workOrderRequestId = binding.textWorkOrderRequestId.text.toString()
         val workOrderPersonToDoJob = binding.textWorkOrderPersonToDoJob.text.toString()
-        val workOrdercreateUserName = binding.textWorkOrderCreateUserName.text.toString()
+        val workOrdercreateUserName = binding.spinnerCreateWorkOrder.selectedItem.toString()
         val workOrderDepartment = binding.textWorkOrderDepartment.text.toString()
         val workOrderRequestSubject = binding.textWorkOrderRequestSubject.text.toString()
         val workOrderRequestDescription = binding.textWorkOrderRequestDescription.text.toString()
-        val workOrderSubject = binding.textWorkOrderSubject.text.toString()
+        val workOrderSubject = binding.spinnerCreateWorkOrderRequestSubject.selectedItem
         val workOrderDescription = binding.textWorkOrderDescription.text.toString()
         val workOrderAssetInformation = binding.textWorkOrderAssetInformation.text.toString()
         val workOrderCase = util.assignedToPerson
         val workOrderDate = currentDateTime.getCurrentDateTime()
         val workOrderRequestType =binding.textWorkOrderRequestType.text.toString()
-        val workOrderType = binding.textWorkOrderType.text.toString()
+        val workOrderType = binding.spinnerWorkOrderType.selectedItem
         val createWorkOrderId = sharedPreferences.getString("userId",null)
 
         val workOrder = hashMapOf(
@@ -364,7 +364,7 @@ class CreateWorkOrderViewModel(application: Application) : AndroidViewModel(appl
 
         reference
             .workordersCollection()
-            .document(incomingData)
+            .document()
             .set(workOrder)
             .addOnSuccessListener {
                 Log.d("CreateWorkOrderActivity", "onOptionsItemSelected => Firestore'a iş emri başarıyla eklendi.")

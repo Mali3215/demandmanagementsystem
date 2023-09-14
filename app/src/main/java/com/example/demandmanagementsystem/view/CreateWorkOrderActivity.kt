@@ -99,10 +99,12 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
 
                     getSpinner()
 
+                    spinnerWorkOrderSubTypeList = ArrayList() // Liste başlatılıyor
+
                     if (departmentType != null) {
                         spinnerDataJobType(departmentType)
                     }
-
+                    spinnerWorkOrderTypeList.add(0,"Seçiniz")
                     spinnerWorkTypeAdapter = ArrayAdapter(this@CreateWorkOrderActivity, android.R.layout.simple_list_item_1,
                         android.R.id.text1, spinnerWorkOrderTypeList
                     )
@@ -111,12 +113,18 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
 
                     binding.spinnerWorkOrderType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                            binding.textWorkOrderType.setText(spinnerWorkOrderTypeList[p2])
-                            spinnerDataSubType(spinnerWorkOrderTypeList[p2])
+                            if (p2 == 0){
+
+                                binding.spinnerCreateWorkOrderRequestSubject.isClickable = false
+                                binding.spinnerCreateWorkOrderRequestSubject.isFocusable = false
+                                spinnerWorkOrderSubTypeList.clear()
+
+                            }else {
+                                spinnerDataSubType(spinnerWorkOrderTypeList[p2])
+                            }
                         }
                         override fun onNothingSelected(p0: AdapterView<*>?) {
                         }
-
                     }
 
                     binding.layoutWorkOrderType.visibility = View.VISIBLE
@@ -157,7 +165,7 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
 
             }
         }
-
+        spinnerWorkOrderSubTypeList.add(0,"Seçiniz")
         spinnerWorkSubTypeAdapter = ArrayAdapter(this@CreateWorkOrderActivity, android.R.layout.simple_list_item_1,
             android.R.id.text1, spinnerWorkOrderSubTypeList
         )
@@ -166,7 +174,7 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
 
         binding.spinnerCreateWorkOrderRequestSubject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                binding.textWorkOrderSubject.setText(spinnerWorkOrderSubTypeList[p2])
+
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
@@ -187,7 +195,6 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
         binding.spinnerCreateWorkOrderRequestSubject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
 
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, indeks: Int, p3: Long) {
-                binding.textWorkOrderSubject.setText(spinnerList[indeks])
 
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -208,7 +215,6 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
 
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, indeks: Int, p3: Long) {
                     selectedUserId = departmentUsersList[indeks].userId
-                    binding.textWorkOrderCreateUserName.setText(departmentUsersList[indeks].userName)
                 }
 
                 override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -228,10 +234,11 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
         return when (item.itemId) {
             R.id.reject -> {
 
-                binding.textWorkOrderSubject.setText("")
+                binding.spinnerCreateWorkOrderRequestSubject.setSelection(0)
                 binding.textWorkOrderDescription.setText("")
                 binding.textWorkOrderAssetInformation.setText("")
-                binding.textWorkOrderCreateUserName.setText("")
+                binding.spinnerWorkOrderType.setSelection(0)
+                binding.spinnerCreateWorkOrder.setSelection(0)
                 true
             }
             R.id.workOrderCreate -> {
@@ -244,7 +251,8 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
 
                         }
                         alerDialog.create().show()
-                    }else if(binding.textWorkOrderAssetInformation.text.toString() == ""){
+                    }else if(binding.textWorkOrderAssetInformation.text.toString() == "")
+                        {
                         alerDialog.setMessage("Lütfen Boş Alanları Doldurunuz")
                         alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
 
@@ -257,9 +265,10 @@ class CreateWorkOrderActivity : AppCompatActivity(), AlertDialogListener {
                             val incomingData = intent.getStringExtra(utilWorkOrder.intentWorkOrderId)
 
                             if (incomingData == null){
-                                viewModel.requestCreateWorkOrder(this@CreateWorkOrderActivity,binding, it)
+                                viewModel.createWorkOrder(this@CreateWorkOrderActivity,binding, it)
+
                             }else {
-                                viewModel.createWorkOrder(this@CreateWorkOrderActivity,binding, it,incomingData)
+                                viewModel.requestCreateWorkOrder(this@CreateWorkOrderActivity,binding, it)
                             }
                         }
                         alerDialog.setNegativeButton("Hayır"){ dialogInterface, i ->

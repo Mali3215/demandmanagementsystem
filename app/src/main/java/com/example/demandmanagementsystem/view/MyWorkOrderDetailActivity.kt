@@ -51,7 +51,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
         viewModel.workOrderData.observe(this) {workOrder ->
 
             if (workOrder != null) {
-                if ((workOrder.workOrderDescription.toString() == "") && (workOrder.workOrderSubject.toString() == "")){
+                if ((workOrder.workOrderDescription.toString() == "")){
 
                     binding.relativeWorkOrderInfo.visibility = View.GONE
                 } else {
@@ -99,7 +99,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
             } else if (workOrderData?.workOrderCase == util.waitingForApproval) {
 
                     if (workOrderData.createWorkOrderId == currentUserId){
-
+                        binding.workOrderType.visibility = View.VISIBLE
                         binding.toolbarWorkOrder.menu.findItem(R.id.confirmJob).isVisible = true
                         binding.spinnerWorkOrderUserSubject.visibility = View.GONE
                         binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
@@ -121,7 +121,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
 
 
             }else if (workOrderData?.workOrderCase == util.completed) {
-
+                binding.workOrderType.visibility = View.VISIBLE
                 binding.spinnerWorkOrderUserSubject.visibility = View.GONE
                 binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
                 binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = false
@@ -153,11 +153,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
 
                     } else {
 
-                        binding.textWorkOrderUserSubject.apply {
-                            setTextColor(ContextCompat.getColor(this@MyWorkOrderDetailActivity, R.color.black))
-                            inputType = InputType.TYPE_NULL
-                            isEnabled = false
-                        }
+                        binding.spinnerWorkOrderUserSubject.isClickable = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.completed).isVisible = false
                         binding.toolbarWorkOrder.menu.findItem(R.id.denied).isVisible = false
@@ -170,6 +166,7 @@ class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
 
 
             }else if (workOrderData?.workOrderCase == util.deniedWork) {
+                binding.workOrderType.visibility = View.VISIBLE
                 binding.toolbarWorkOrder.menu.findItem(R.id.createWorkOrderDetailMenu).isVisible = false
                 binding.relativeLayoutWorkOrderDetail.visibility = View.VISIBLE
                 binding.spinnerWorkOrderUserSubject.visibility = View.GONE
@@ -236,7 +233,6 @@ class MyWorkOrderDetailActivity : AppCompatActivity() , AlertDialogListener {
         binding.spinnerWorkOrderUserSubject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, indeks: Int, p3: Long) {
 
-                binding.textWorkOrderUserSubject.setText(spinnerList[indeks])
 
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {

@@ -91,6 +91,7 @@ class CreateRequestViewModel(application: Application) : AndroidViewModel(applic
             .get()
             .addOnSuccessListener { documentsnapshot ->
                 val departments = mutableListOf<String>()
+                departments.add("Seçiniz")
                 for (document in documentsnapshot.documents) {
                     val departmentType = document.getString("departmentType")
                     departmentType?.let { departments.add(it) }
@@ -206,13 +207,12 @@ class CreateRequestViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun spinnerDataJobType(departmenType: String) {
-        jobDetailsJobTypeList = ArrayList() // Liste başlatılıyor
+        jobDetailsJobTypeList = ArrayList()
 
         if (jobDetailsListTemp == null) {
-            // requestListTemp null ise, hata oluşmasını önlemek için işlem yapmayın
             return
         }
-
+        jobDetailsJobTypeList!!.add("Seçiniz")
         for (jobDetail in jobDetailsListTemp!!){
             if (jobDetail.departmentType == departmenType){
                 jobDetailsJobTypeList!!.add(jobDetail.jobType)
@@ -221,14 +221,12 @@ class CreateRequestViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun spinnerDataSubType(jobType: String){
-        jobDetailsSubTypeList = ArrayList() // Liste başlatılıyor
-        val tempList = ArrayList<String>()
+        jobDetailsSubTypeList = ArrayList()
 
         if (jobDetailsListTemp == null) {
-            // requestListTemp null ise, hata oluşmasını önlemek için işlem yapmayın
             return
         }
-
+        jobDetailsSubTypeList!!.add("Seçiniz")
         for (jobDetail in jobDetailsListTemp!!){
             if (jobDetail.jobType == jobType){
 

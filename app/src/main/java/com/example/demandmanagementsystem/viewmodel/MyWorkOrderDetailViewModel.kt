@@ -171,13 +171,13 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
         val updateData = hashMapOf<String, Any>(
             "workOrderCase" to util.waitingForApproval,
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
-            "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString()
+            "workOrderUserSubject" to binding.spinnerWorkOrderUserSubject.selectedItem
         )
 
         val updateRequestData = hashMapOf<String, Any>(
             "requestCase" to util.waitingForApproval,
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
-            "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString()
+            "workOrderUserSubject" to binding.spinnerWorkOrderUserSubject.selectedItem
         )
 
         // -> talepli iş emri
@@ -238,12 +238,12 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
         val updateData = hashMapOf<String, Any>(
             "workOrderCase" to util.deniedWork,
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
-            "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString()
+            "workOrderUserSubject" to binding.spinnerWorkOrderUserSubject.selectedItem
         )
         val updateRequestData = hashMapOf<String, Any>(
             "requestCase" to util.deniedWork,
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
-            "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString()
+            "workOrderUserSubject" to binding.spinnerWorkOrderUserSubject.selectedItem
         )
         if (tempKind == util.tempKindRequest){
 
@@ -364,7 +364,7 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
         val updateData = hashMapOf<String, Any>(
             "workOrderCase" to util.activityProcessed,
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
-            "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString()
+            "workOrderUserSubject" to binding.spinnerWorkOrderUserSubject.selectedItem
         )
 
         reference.workordersCollection()
@@ -421,7 +421,7 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
             "workOrderCase" to _workOrderData.value!!.workOrderCase,
             "workOrderRequestType" to _workOrderData.value!!.workOrderRequestType,
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
-            "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString(),
+            "workOrderUserSubject" to binding.spinnerWorkOrderUserSubject.selectedItem,
             "createWorkOrderId" to _workOrderData.value!!.createWorkOrderId,
             "workOrderType" to _workOrderData.value!!.workOrderType
         )
@@ -461,7 +461,7 @@ class MyWorkOrderDetailViewModel(application: Application) : AndroidViewModel(ap
             "workOrderCase" to util.jobReturn,
             "workOrderRequestType" to _workOrderData.value!!.workOrderRequestType,
             "workOrderSubDescription" to binding.textWorkOrderSubDescription.text.toString(),
-            "workOrderUserSubject" to binding.textWorkOrderUserSubject.text.toString(),
+            "workOrderUserSubject" to binding.spinnerWorkOrderUserSubject.selectedItem,
             "createWorkOrderId" to _workOrderData.value!!.createWorkOrderId
         )
 

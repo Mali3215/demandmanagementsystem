@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -62,7 +63,7 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
             binding.spinnerAddPersonDepartment.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
 
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, indeks: Int, p3: Long) {
-                    binding.textAddPersonDepartmentType.setText(departmentTypeList[indeks])
+
                 }
 
                 override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -86,7 +87,7 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
             binding.spinnerAddPersonAuthorizotionType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
 
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, indeks: Int, p3: Long) {
-                    binding.textAddPersonAuthorizotionType.setText(typeOfStaffList[indeks])
+
                 }
 
                 override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -173,8 +174,6 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
                 binding.textAddPersonName.setText("")
                 binding.textAddPersonTelNo.setText("")
                 binding.textAddPersonEmail.setText("")
-                binding.textAddPersonAuthorizotionType.setText("")
-                binding.textAddPersonDepartmentType.setText("")
                 binding.textAddPersonTC.setText("")
 
                 true
@@ -186,8 +185,10 @@ class AddPersonActivity : AppCompatActivity(), AlertDialogListener {
                 val email = binding.textAddPersonEmail.text.toString()
                 val name = binding.textAddPersonName.text.toString()
                 val telNo = binding.textAddPersonTelNo.text.toString()
-                val authorityType = binding.textAddPersonAuthorizotionType.text.toString()
-                val departmentType = binding.textAddPersonDepartmentType.text.toString()
+                val authorityType = binding.spinnerAddPersonAuthorizotionType.selectedItem.toString()
+                val departmentType = binding.spinnerAddPersonDepartment.selectedItem.toString()
+
+                Log.e("spinner","$authorityType - $departmentType")
 
                 if((tcIdentityNo == "" ) || (email == "") || (name == "") || (telNo == "") || (authorityType == "") || (departmentType == "")){
                     alerDialog.setTitle("Kullanıcı Eklenmedi")

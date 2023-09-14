@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:backgroundTint="#03A9F4"
+            android:backgroundTint="#0003A9F4"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp">
@@ -34,7 +34,7 @@
 
                 <ImageView
                     android:id="@+id/nameImageView"
-                    android:src="@drawable/ic_name"
+                    android:src="@drawable/identity"
                     style="@style/profileDetailsImage" />
 
                 <TextView
@@ -56,7 +56,7 @@
 
                 <ImageView
                     android:id="@+id/mobileImageView"
-                    android:src="@drawable/ic_mobile"
+                    android:src="@drawable/newtelno"
                     style="@style/profileDetailsImage" />
 
                 <TextView
@@ -77,7 +77,7 @@
 
                 <ImageView
                     android:id="@+id/emailImageView"
-                    android:src="@drawable/ic_email"
+                    android:src="@drawable/password"
                     style="@style/profileDetailsImage" />
 
                 <TextView
@@ -97,7 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Şifre Değiştir"
-                    android:backgroundTint="#E8526D"
+                    android:backgroundTint="#000000"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="8dp"/>
@@ -110,7 +110,7 @@
 
                 <ImageView
                     android:id="@+id/addressImageView"
-                    android:src="@drawable/ic_address"
+                    android:src="@drawable/department_type"
                     style="@style/profileDetailsImage" />
 
                 <TextView
@@ -131,7 +131,7 @@
 
                 <ImageView
                     android:id="@+id/dobImageView"
-                    android:src="@drawable/ic_dob"
+                    android:src="@drawable/authority_type"
                     style="@style/profileDetailsImage" />
 
                 <TextView

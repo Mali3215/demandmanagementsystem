@@ -103,7 +103,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
-                        android:visibility="@{myWorkOrder.workOrderSubject != null &amp; !myWorkOrder.workOrderSubject.isEmpty() ? View.VISIBLE : View.GONE}"
+                        android:visibility="@{myWorkOrder.workOrderRequestSubject != null &amp; !myWorkOrder.workOrderRequestSubject.isEmpty() ? View.GONE : View.VISIBLE}"
                         android:paddingLeft="15dp">
 
                         <TextView

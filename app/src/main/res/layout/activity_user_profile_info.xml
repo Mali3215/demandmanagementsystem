@@ -15,7 +15,7 @@
         android:fitsSystemWindows="true"
         android:orientation="vertical"
         tools:context=".view.UserProfileInfoActivity"
-        android:background="@color/profileBackground">
+        android:background="@drawable/constraintbacraund">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar"
@@ -42,11 +42,12 @@
                     android:gravity="center_horizontal"
                     android:orientation="vertical"
                     android:id="@+id/linearLayout"
-                    android:background="@drawable/constraintbacraund">
+                    android:background="#6FD1FF">
 
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:src="@drawable/baseline_account_circle_24" />
 
                     <TextView
@@ -54,6 +55,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@{userData.name}"
+
                         android:textSize="28dp"
                         android:textStyle="bold" />
 
@@ -71,11 +73,13 @@
                         android:gravity="center"
                         android:layout_gravity="bottom"
                         android:layout_marginTop="20dp"
-                        android:background="@color/profileBackground">
+                        android:background="#6FD1FF">
 
 
                         <TextView
+                            android:id="@+id/profileStyledBackButtonText"
                             android:text="Back to\nHome"
+                            android:textColor="@color/white"
                             style="@style/profileStyledBackButton" />
                     </RelativeLayout>
 
@@ -84,6 +88,7 @@
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
+
                     android:layout_height="?attr/actionBarSize"
                     app:layout_collapseMode="pin" />
 

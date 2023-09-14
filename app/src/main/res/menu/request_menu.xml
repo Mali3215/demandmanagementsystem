@@ -8,6 +8,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/workOrderCreate"
+        android:icon="@drawable/baseline_check_24"
         android:title="ONAYLA"
-        app:showAsAction="always" />
+        app:showAsAction="always|withText" />
 </menu>

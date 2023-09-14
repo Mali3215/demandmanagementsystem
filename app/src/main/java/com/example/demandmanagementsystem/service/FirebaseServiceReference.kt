@@ -53,7 +53,6 @@ class FirebaseServiceReference {
     }
 
     fun sigInOut(sharedPreferences: SharedPreferences,context: Context) {
-        // coocki yapısı araştır
         auth.signOut()
         sharedPreferences.edit().apply {
             remove("token")

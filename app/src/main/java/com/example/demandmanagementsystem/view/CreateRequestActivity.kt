@@ -63,22 +63,27 @@ class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
         binding.spinnerRequestDepartment.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
 
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, indeks: Int, p3: Long) {
-                binding.textRequestType.setText("")
-                binding.textRequestSubject.setText("")
-                binding.textRequestSendDepartment.setText(departmentTypeList[indeks])
+                if (indeks == 0){
+                    binding.spinnerRequestType.isClickable = false
+                    binding.spinnerRequestType.isFocusable = false
+
+                }else{
+                    spinnerDataJobTypeAdapter = ArrayAdapter(this@CreateRequestActivity
+                        ,android.R.layout.simple_list_item_1, android.R.id.text1,listOf())
+
+                    binding.spinnerRequestType.adapter = spinnerDataJobTypeAdapter
+
+                    spinnerDataSubJobTypeAdapter = ArrayAdapter(this@CreateRequestActivity,
+                        android.R.layout.simple_list_item_1,android.R.id.text1, listOf()
+                    )
+                    binding.spinnerRequestSubject.adapter = spinnerDataSubJobTypeAdapter
+
+                    spinner(departmentTypeList[indeks])
+                }
 
 
-                spinnerDataJobTypeAdapter = ArrayAdapter(this@CreateRequestActivity
-                    ,android.R.layout.simple_list_item_1, android.R.id.text1,listOf())
 
-                binding.spinnerRequestType.adapter = spinnerDataJobTypeAdapter
 
-                spinnerDataSubJobTypeAdapter = ArrayAdapter(this@CreateRequestActivity,
-                    android.R.layout.simple_list_item_1,android.R.id.text1, listOf()
-                )
-                binding.spinnerRequestSubject.adapter = spinnerDataSubJobTypeAdapter
-
-                spinner(departmentTypeList[indeks])
 
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -100,22 +105,20 @@ class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
 
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
 
-                binding.textRequestSubject.setText("")
-                binding.textRequestType.setText(jobTypeList[p2])
+                if (p2 == 0){
+                    binding.spinnerRequestSubject.isClickable = false
+                    binding.spinnerRequestSubject.isFocusable = false
 
-
-
-                spinnerSubtype(jobTypeList[p2])
-
+                }else {
+                    spinnerSubtype(jobTypeList[p2])
+                }
             }
-
             override fun onNothingSelected(p0: AdapterView<*>?) {
 
             }
 
         }
     }
-
     fun spinnerSubtype(temp: String){
 
         viewModel.spinnerDataSubType(temp)
@@ -132,17 +135,12 @@ class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
                 p2: Int,
                 p3: Long
             ) {
-                binding.textRequestSubject.setText("")
-                binding.textRequestSubject.setText(subTypeList[p2])
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
-
         }
-
     }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.request_menu, menu)
         return true
@@ -159,25 +157,29 @@ class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
                     android.R.layout.simple_list_item_1,android.R.id.text1, listOf()
                 )
                 binding.spinnerRequestSubject.adapter = spinnerDataSubJobTypeAdapter
-                binding.textRequestSubject.setText("")
+                binding.spinnerRequestSubject.setSelection(0)
+                binding.spinnerRequestDepartment.setSelection(0)
                 binding.textRequestDescription.setText("")
-                binding.textRequestType.setText("")
+                binding.spinnerRequestType.setSelection(0)
 
                 true
             }
             R.id.workOrderCreate -> {
 
                 val alerDialog = AlertDialog.Builder(this@CreateRequestActivity)
-                val requestType = binding.textRequestType.text.toString()
+                val requestType = binding.spinnerRequestType.selectedItem
                 val requestName = binding.textRequestUserName.text.toString()
                 val requestDepartment = binding.textRequestDepartment.text.toString()
-                val requestSendDepartment = binding.textRequestSendDepartment.text.toString()
-                val requestSubject = binding.textRequestSubject.text.toString()
+                val requestSendDepartment = binding.spinnerRequestDepartment.selectedItem
+                val requestSubject = binding.spinnerRequestSubject.selectedItem
                 val requestDescription = binding.textRequestDescription.text.toString()
                 val requestContactNumber = binding.textRequestContactNumber.text.toString()
                 val telNoLenght = requestContactNumber.trim().length
-                Log.e("buradayım","$telNoLenght")
-                if ((requestType == "") || (requestSendDepartment == "") || (requestSubject == "")|| (requestDescription == "")|| (requestContactNumber == "")){
+
+                if ((requestType == null) || (requestSendDepartment == null) || (requestSubject == null)
+                    || (requestDescription == "")|| (requestContactNumber == "")
+                    || (requestSendDepartment == "Seçiniz") || (requestType == "Seçiniz")|| (requestSubject == "Seçiniz")){
+
                     alerDialog.setTitle("Talep Oluşturulamadı")
                     alerDialog.setMessage("Boş Alanları Doldurunuz")
                     alerDialog.setPositiveButton("Tamam"){ dialogInterface, i ->
@@ -204,11 +206,11 @@ class CreateRequestActivity : AppCompatActivity() , AlertDialogListener {
 
                             viewModel.createRequest(
                                 CreateRequest(
-                                    requestType,
+                                    requestType.toString(),
                                     requestName,
                                     requestDepartment,
-                                    requestSendDepartment,
-                                    requestSubject,
+                                    requestSendDepartment.toString(),
+                                    requestSubject.toString(),
                                     requestDescription,
                                     requestContactNumber
                                 ),this@CreateRequestActivity
