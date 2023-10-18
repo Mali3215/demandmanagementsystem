@@ -3,16 +3,23 @@ package com.example.demandmanagementsystem.viewmodel
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.demandmanagementsystem.R
 import com.example.demandmanagementsystem.adapter.AlertDialogListener
 import com.example.demandmanagementsystem.adapter.RequestAdapter
 import com.example.demandmanagementsystem.databinding.ActivityDemandListBinding
+import com.example.demandmanagementsystem.databinding.ActivityUserProfileInfoBinding
+import com.example.demandmanagementsystem.databinding.NavViewImageTextBinding
 import com.example.demandmanagementsystem.model.Requests
 import com.example.demandmanagementsystem.model.User
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
@@ -68,7 +75,51 @@ class DemandListViewModel(application: Application) : AndroidViewModel(applicati
     fun setAlertDialogListener(listener: AlertDialogListener) {
         alertDialogListener = listener
     }
+    fun getProfileImage(imageView: ImageView) {
 
+        encodeImageToBase64{bitmap ->
+
+            if(bitmap == "null") {
+                imageView.setImageResource(R.drawable.baseline_account_circle_24)
+
+            } else {
+
+                val selectedBitmap = decodeBase64ToBitmap(bitmap)
+                imageView.setBackgroundResource(0) // Önceki arkaplanı temizle (isteğe bağlı)
+                imageView.setImageBitmap(selectedBitmap)
+
+            }
+
+        }
+    }
+    fun decodeBase64ToBitmap(base64: String): Bitmap? {
+        val byteDizisi = Base64.decode(base64, Base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(byteDizisi, 0, byteDizisi.size)
+    }
+    fun encodeImageToBase64(callbacks: (String) -> Unit) {
+        val userId = sharedPreferences.getString("userId", null)
+        if (userId != null) {
+            reference
+                .profilePhotoCollection()
+                .document(userId)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+
+                    val bitmap = documentSnapshot.getString("image")
+
+                    if (bitmap != null) {
+                        callbacks(bitmap)
+                    }
+
+                    Log.e("UserProfileInfo", "save image")
+                }
+                .addOnFailureListener {
+
+                    Log.e("UserProfileInfo", "save image save error")
+                }
+        }
+        callbacks(null.toString())
+    }
     fun notificationListener(context: Context,binding:ActivityDemandListBinding){
         val sharedPreferences = context.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
         val uuid = sharedPreferences.getString("userId","")

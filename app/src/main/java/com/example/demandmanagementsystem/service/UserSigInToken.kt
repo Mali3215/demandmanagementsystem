@@ -5,13 +5,11 @@ import android.util.Log
 
 class UserSigInToken() {
     private val reference = FirebaseServiceReference()
-
     fun userSigInToken(context: Context, callback: (Boolean) -> Unit) {
         val sharedPreferences = context.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)
         val userId = sharedPreferences.getString("userId", null)
-        val token = sharedPreferences.getString("token","")
-        Log.e("logSons","logSons $token")
-
+        val token = sharedPreferences.getString("token", "")
+        Log.e("logSons", "logSons $token")
 
         if (userId != null) {
             reference
@@ -22,15 +20,19 @@ class UserSigInToken() {
                     val guide = documentSnapshot.getString("token").toString()
                     if (token == guide) {
                         callback.invoke(true)
+                    } else {
+                        callback.invoke(false) // Token eşleşmiyorsa burada çağrılmalı
                     }
-                    callback.invoke(false)
                 }
                 .addOnFailureListener {
                     Log.e("UserSigInToken", "userSigInToken")
-                    callback.invoke(false)
+                    callback.invoke(false) // Hata durumunda burada çağrılmalı
                 }
+        } else {
+            callback.invoke(false) // userId null ise burada çağrılmalı
         }
     }
+
 
     fun saveUserSigInToken(userId: String, guideId: String, context: Context, callback: (Boolean) -> Unit) {
         val sharedPreferences = context.getSharedPreferences("GirisBilgi", Context.MODE_PRIVATE)

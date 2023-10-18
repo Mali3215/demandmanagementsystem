@@ -133,7 +133,6 @@ class CreateRequestViewModel(application: Application) : AndroidViewModel(applic
         val userId = sharedPreferences.getString("userId","")
 
         if (userId == null) {
-
             _requestCreationStatus.value = false
             return
         }

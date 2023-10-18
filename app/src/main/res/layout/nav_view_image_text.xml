@@ -42,14 +42,18 @@
 
         <ImageView
             android:id="@+id/imageProfile"
+            android:visibility="visible"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
+            android:src="@drawable/baseline_account_circle_24"
             android:layout_marginBottom="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:scaleType="centerCrop"
+        />
+
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

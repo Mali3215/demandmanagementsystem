@@ -52,6 +52,9 @@ class FirebaseServiceReference {
         return firestore.collection("userSigInToken")
     }
 
+    fun profilePhotoCollection(): CollectionReference {
+        return firestore.collection("profilePhoto")
+    }
     fun sigInOut(sharedPreferences: SharedPreferences,context: Context) {
         auth.signOut()
         sharedPreferences.edit().apply {
@@ -64,6 +67,7 @@ class FirebaseServiceReference {
             remove("telNo")
             remove("authorityType")
             remove("departmentType")
+            remove("profilePhoto")
             apply()
         }
         Log.e("DemandListActivitys", "Bilgileriniz silindi-----------------------------")

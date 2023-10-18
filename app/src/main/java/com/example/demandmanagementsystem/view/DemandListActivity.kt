@@ -2,9 +2,17 @@ package com.example.demandmanagementsystem.view
 
 
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
 import android.view.Menu
@@ -19,6 +27,7 @@ import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.marginStart
 import androidx.lifecycle.ViewModelProvider
@@ -30,11 +39,11 @@ import com.example.demandmanagementsystem.databinding.ActivityDemandListBinding
 import com.example.demandmanagementsystem.service.FirebaseServiceReference
 import com.example.demandmanagementsystem.util.RequestUtil
 import com.example.demandmanagementsystem.viewmodel.DemandListViewModel
+import java.lang.Exception
 
 
 class DemandListActivity : AppCompatActivity()
     ,SearchView.OnQueryTextListener, AlertDialogListener{
-
     private val reference= FirebaseServiceReference()
     private lateinit var viewModel: DemandListViewModel
     private lateinit var binding: ActivityDemandListBinding
@@ -50,9 +59,7 @@ class DemandListActivity : AppCompatActivity()
         binding.toolbar.visibility = View.VISIBLE
         setSupportActionBar(binding.toolbar)
 
-        val baslik = binding.navigationView.inflateHeaderView(R.layout.nav_view_image_text)
-        val imageView = baslik.findViewById(R.id.imageProfile) as ImageView
-        imageView.setImageResource(R.drawable.batman)
+
 
 
         val toggle = ActionBarDrawerToggle(this, binding.drawer, binding.toolbar, 0, 0)
@@ -61,6 +68,10 @@ class DemandListActivity : AppCompatActivity()
 
         viewModel = ViewModelProvider(this@DemandListActivity).get(DemandListViewModel::class.java)
         viewModel.setAlertDialogListener(this)
+        
+        val baslik = binding.navigationView.inflateHeaderView(R.layout.nav_view_image_text)
+        val imageView = baslik.findViewById(R.id.imageProfile) as ImageView
+        viewModel.getProfileImage(imageView)
 
         binding.recyclerViewDemandList.setHasFixedSize(true)
         binding.recyclerViewDemandList.layoutManager = LinearLayoutManager(this@DemandListActivity)
@@ -236,6 +247,4 @@ class DemandListActivity : AppCompatActivity()
         val sharedPreferences = getSharedPreferences("GirisBilgi",Context.MODE_PRIVATE)
         reference.sigInOut(sharedPreferences, this@DemandListActivity)
     }
-
-
 }

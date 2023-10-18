@@ -28,14 +28,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        userToken.userSigInToken(this@MainActivity){info ->
-            if (info){
-                Toast.makeText(this@MainActivity, "Hoşgeldiniz!", Toast.LENGTH_LONG).show()
-                val intent = Intent(this@MainActivity, DemandListActivity::class.java)
-                startActivity(intent)
-                finish()
-            }
-        }
+
 
         auth = Firebase.auth
         binding.buttonEnter.setOnClickListener {
