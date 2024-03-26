@@ -1,4 +1,8 @@
-İSU TALEP YÖNETİM SİSTEMİ\n-Kotlin, Firabase, MVVM\n
+İSU TALEP YÖNETİM SİSTEMİ
+
+-Kotlin, Firabase, MVVM
+
+
 Farklı departmanların sorunlarını ilgili departmanlara iletip bu sorunların 
 çözümlerine iş emirleri oluşturan, bu talep ve iş emirlerini takip edebildiği Kotlin 
 dilinde Android Studio platformunda Firebase Authentication ve Firestore veri 
